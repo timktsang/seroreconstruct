@@ -15,7 +15,7 @@ A data frame with 9 variables, where each row represents an individual:
   \item{time3}{date of third serum collection}
   \item{HAI_titer_1}{HAI titer for first serum collection}
   \item{HAI_titer_2}{HAI titer for second serum collection}
-  \item{HAI_titer_3}{HAI titer for third serum collection}
+  \item{HAI_titer3}{HAI titer for third serum collection}
 }
 }
 \usage{

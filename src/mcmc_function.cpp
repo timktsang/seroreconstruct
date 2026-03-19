@@ -827,7 +827,7 @@ int finalaccept=0;
 if (add){
 if (numberofall-numberofinfect>0){
 // first get the random number
-select=rand()%(numberofall-numberofinfect);
+select=(int)floor(R::runif(0, numberofall-numberofinfect));
 // here get the subject and strain
 // use b1 to indicate the subject
 for (b3=data11.nrow()-1;b3>=0;--b3){
@@ -1047,7 +1047,7 @@ mcmcrecord(b1,5)=data21pro(b1,4);
 else{
 if (numberofinfect>0){
 // first get the random number
-select=rand()%(numberofinfect);
+select=(int)floor(R::runif(0, numberofinfect));
 // here get the subject and strain
 // use b1 to indicate the subject
 for (b3=data11.nrow()-1;b3>=0;--b3){

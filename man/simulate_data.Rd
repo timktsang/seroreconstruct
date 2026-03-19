@@ -22,5 +22,5 @@ A simulated data based on the input parameter vectors, with the format equal to 
 The function to simulate the dataset, for validation or other purpose.
 }
 \examples{
-a1 <- simulate_data(inputdata, flu_activity, para1, para2)
+simulated <- simulate_data(inputdata, flu_activity, para1, para2)
 }

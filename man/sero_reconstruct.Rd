@@ -30,5 +30,8 @@ A list object stores: 1) posterior samples for the model parameter, 2) posterior
 The main function to run the MCMC for the Bayesian model, to obtain individual dynamics, model parameters such as infection probability, boosting, waning, and measurement error.
 }
 \examples{
-a1 <- sero_reconstruct(inputdata, inputILI, n_iteration = 2000, burnin = 1000, thinning = 1)
+\donttest{
+a1 <- sero_reconstruct(inputdata, flu_activity,
+                        n_iteration = 2000, burnin = 1000, thinning = 1)
+}
 }

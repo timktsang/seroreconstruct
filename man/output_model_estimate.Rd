@@ -18,5 +18,9 @@ A data frame that store the estimates from a fitted MCMC.
 The function to obtain the estimates of the infection probabilities, boosting, waning and measurement error
 }
 \examples{
+\donttest{
+a1 <- sero_reconstruct(inputdata, flu_activity,
+                        n_iteration = 2000, burnin = 1000, thinning = 1)
 fitted_result <- output_model_estimate(a1)
+}
 }

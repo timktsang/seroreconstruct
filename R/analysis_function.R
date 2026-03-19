@@ -7,8 +7,11 @@
 #' @param burnin The iteration for burn-in for MCMC.
 #' @param thinning The number of thinning in MCMC.
 #' @return A list object stores: 1) posterior samples for the model parameter, 2) posterior samples for the parameter for baseline HAI titer, 3) posterior samples for the infection status for each individual, 4) posterior samples for the infection time for each individual (0 for uninfected individuals), 5) posterior samples for the individual waning, 6) posterior samples for individual boosting, 7) posterior samples for the baseline HAI titer, 8) input data, 9) input influenza activity data.
-#' @examples 
-#' a1 <- sero_reconstruct(inputdata, inputILI, n_iteration = 2000, burnin = 1000, thinning = 1)
+#' @examples
+#' \donttest{
+#' a1 <- sero_reconstruct(inputdata, flu_activity,
+#'                         n_iteration = 2000, burnin = 1000, thinning = 1)
+#' }
 #' @export
 sero_reconstruct <- function(inputdata,inputILI,n_iteration = 2000,burnin = 1000,thinning = 1){
 aaaaa1 <- Sys.time()
@@ -124,8 +127,12 @@ para_summary <- function(mcmc,a,b,print){
 #' @param fitted_MCMC The fitted MCMC
 #' @param period A vector indicate the start and the end of a season to compute the infection probabilities. If empty, the start and the end of a season was assumed to be the minimum of the start of follow-up and the maximum of the end of follow-up among individuals.
 #' @return A data frame that store the estimates from a fitted MCMC.
-#' @examples 
+#' @examples
+#' \donttest{
+#' a1 <- sero_reconstruct(inputdata, flu_activity,
+#'                         n_iteration = 2000, burnin = 1000, thinning = 1)
 #' fitted_result <- output_model_estimate(a1)
+#' }
 #' @export
 output_model_estimate <- function(fitted_MCMC,period){
   a1 <- fitted_MCMC
@@ -220,8 +227,8 @@ output_model_estimate <- function(fitted_MCMC,period){
 #' @param para1 The parameter vector for the model parameters, in the following format: 1) the parameter value of the random measurement error, 2) the parameter value of the 2-fold error, 3) the boosting in HAI titer after infection for children (in log2 unit), 4) the waning in HAI titer for children (in log2 unit), 5) the boosting in HAI titer after infection for adults (in log2 unit), 6) the waning in HAI titer for adults (in log2 unit), 7) the scale parameter for children, 8) the scale parameter for adults, 9) the scale parameter for older adults, 10) the log of risk ratio of 2-fold increase in baseline HAI titer 
 #' @param para2 The parameter vector for the parameter fot the HAI titer distribution. The first 10 elements are the probability that the HAI titer is equal to 0-9 for children, and the elements of 11-20 is the probability that the HAI titer is equal to 0-9 for adults.
 #' @return A simulated data based on the input parameter vectors, with the format equal to the input data.
-#' @examples 
-#' a1 <- simulate_data(inputdata, flu_activity, para1, para2)
+#' @examples
+#' simulated <- simulate_data(inputdata, flu_activity, para1, para2)
 #' @export
 simulate_data <- function(inputdata,inputILI,para1,para2){
 
