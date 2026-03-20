@@ -7,20 +7,23 @@
 output_model_estimate(fitted_MCMC, period)
 }
 \arguments{
-\item{fitted_MCMC}{The fitted MCMC}
+\item{fitted_MCMC}{A \code{seroreconstruct_fit} object, or a list returned by
+an older version of \code{sero_reconstruct()}.}
 
-\item{period}{A vector indicate the start and the end of a season to compute the infection probabilities. If empty, the start and the end of a season was assumed to be the minimum of the start of follow-up and the maximum of the end of follow-up among individuals.}
+\item{period}{A vector indicating the start and the end of a season to compute
+the infection probabilities. If empty, the start and end of the season are
+inferred from the data.}
 }
 \value{
-A data frame that store the estimates from a fitted MCMC.
+A data frame of model estimates (invisibly).
 }
 \description{
-The function to obtain the estimates of the infection probabilities, boosting, waning and measurement error
+\code{output_model_estimate} is deprecated; use \code{summary()} instead.
 }
 \examples{
-\donttest{
+\dontrun{
 a1 <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
-fitted_result <- output_model_estimate(a1)
+fitted_result <- output_model_estimate(a1)  # deprecated, use summary(a1)
 }
 }

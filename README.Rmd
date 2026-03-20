@@ -46,7 +46,7 @@ data("flu_activity")
 mcmc_result <- sero_reconstruct(inputdata,flu_activity, 2000,1000,1)
 
 ##### obtain the model estimate from fitted MCMC result
-extract_mcmc_result <- output_model_estimate(mcmc_result)
+extract_mcmc_result <- summary(mcmc_result)
 
 ```
 

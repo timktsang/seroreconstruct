@@ -9,7 +9,8 @@ sero_reconstruct(
   inputILI,
   n_iteration = 2000,
   burnin = 1000,
-  thinning = 1
+  thinning = 1,
+  group_by = NULL
 )
 }
 \arguments{
@@ -22,9 +23,16 @@ sero_reconstruct(
 \item{burnin}{The iteration for burn-in for MCMC.}
 
 \item{thinning}{The number of thinning in MCMC.}
+
+\item{group_by}{Optional formula specifying grouping variables (e.g., \code{~age_group}).
+When provided, independent MCMCs are fit for each combination of the grouping
+variables. The formula uses interaction semantics: \code{~age + vac} means all
+age-by-vac combinations. Returns a \code{seroreconstruct_multi} object.}
 }
 \value{
-A list object stores: 1) posterior samples for the model parameter, 2) posterior samples for the parameter for baseline HAI titer, 3) posterior samples for the infection status for each individual, 4) posterior samples for the infection time for each individual (0 for uninfected individuals), 5) posterior samples for the individual waning, 6) posterior samples for individual boosting, 7) posterior samples for the baseline HAI titer, 8) input data, 9) input influenza activity data.
+A \code{seroreconstruct_fit} object (when \code{group_by} is \code{NULL})
+  or a \code{seroreconstruct_multi} object (when \code{group_by} is provided).
+  Use \code{summary()} to extract model estimates.
 }
 \description{
 The main function to run the MCMC for the Bayesian model, to obtain individual dynamics, model parameters such as infection probability, boosting, waning, and measurement error.
@@ -33,5 +41,6 @@ The main function to run the MCMC for the Bayesian model, to obtain individual d
 \donttest{
 a1 <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
+summary(a1)
 }
 }
