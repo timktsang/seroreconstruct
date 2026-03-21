@@ -10,17 +10,21 @@ developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.re
 `seroreconstruct` is a Bayesian modeling framework to infer influenza
 virus infection status, antibody dynamics, and individual infection
 risks from serological data, by accounting for measurement error. This
-could identifiy influenza infections by relaxing 4-fold rise rule, and
+could identify influenza infections by relaxing 4-fold rise rule, and
 quantifies the contributions of age and pre-epidemic
 hemagglutination-inhibiting (HAI) titers to infection risk.
 
-While the package currently provides a set of fundamental functions, we
-are actively working on expanding its capabilities with more advanced
-tools for a comprehensive understanding of your results.
+## Features
+
+- **Bayesian MCMC inference** of infection probability, antibody boosting/waning, and measurement error
+- **Multi-season support** — fit season-specific infection risk and HAI protection parameters
+- **Subgroup comparisons** via `group_by` — fit independent MCMCs for age groups, vaccination status, or other strata
+- **S3 classes** with `print()` and `summary()` methods for clean output
+- **Simulation** — generate synthetic datasets for validation and power analysis
 
 ## Installation
 
-1.  Install \[R\]\[r-project\]
+1.  Install [R][r-project]
 
 2.  Install the development version of seroreconstruct from
     [GitHub](https://github.com/timktsang/seroreconstruct):
@@ -30,27 +34,66 @@ devtools::install_github("timktsang/seroreconstruct")
 library(seroreconstruct)
 ```
 
-## Example
+## Quick start
 
-This is a basic example of how to load some serological data and fitting
-the model using the MCMC framework.
+### Basic usage (single season)
 
 ``` r
 library(seroreconstruct)
 
-## Load in a data set and flu activity data
+# Load example data
 data("inputdata")
 data("flu_activity")
 
-###### run the MCMC to estimate parameter of the model
-###### in actual analysis, number of iteration is 200000, burnin is 100000, and thinning is 10
-mcmc_result <- sero_reconstruct(inputdata,flu_activity, 2000,1000,1)
+# Fit the model (use more iterations for real analyses, e.g. 200000)
+fit <- sero_reconstruct(inputdata, flu_activity,
+                        n_iteration = 2000, burnin = 1000, thinning = 1)
 
-##### obtain the model estimate from fitted MCMC result
-extract_mcmc_result <- summary(mcmc_result)
+# View results
+summary(fit)
 ```
 
-![The output of the MCMC results.](man/figures/sero_result.png)
+### Subgroup analysis
+
+Fit separate models for each age group:
+
+``` r
+fit_by_age <- sero_reconstruct(inputdata, flu_activity,
+                               n_iteration = 20000, burnin = 10000,
+                               thinning = 5, group_by = ~age_group)
+
+# View combined results
+summary(fit_by_age)
+
+# Access individual group fits
+summary(fit_by_age[["1"]])
+```
+
+### Multi-season analysis
+
+Add a `season` column (0-indexed integer) to your input data:
+
+``` r
+# Stack data from multiple seasons
+inputdata$season <- 0L  # single season example
+
+# For multi-season: combine data frames with season = 0, 1, 2, ...
+# The model estimates season-specific infection risk and HAI protection
+fit_multi <- sero_reconstruct(multi_season_data, flu_activity,
+                              n_iteration = 20000, burnin = 10000,
+                              thinning = 5)
+```
+
+### Simulation
+
+Generate synthetic data for validation:
+
+``` r
+data("para1")  # example parameter vector (single season)
+data("para2")  # baseline HAI titer distribution
+
+simulated <- simulate_data(inputdata, flu_activity, para1, para2)
+```
 
 ## Citation
 

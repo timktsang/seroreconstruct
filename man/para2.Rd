@@ -5,11 +5,13 @@
 \alias{para2}
 \title{Example of parameter vector for the baseline HAI titer for the main model}
 \format{
-A vector with 10 elements, where each of them is a model parameter:
+A numeric vector with 20 elements (for a single-season model, \code{S = 1}).
+  The general length is \code{20 * S} where \code{S} is the number of seasons.
 \describe{
-  \item{element 1-10}{The probability that the HAI titer is equal to 0-9 for children}
-  \item{element 11-20}{The probability that the HAI titer is equal to 0-9 for adults}
+  \item{Elements 1--10}{probability that the HAI titer is 0--9 for children}
+  \item{Elements 11--20}{probability that the HAI titer is 0--9 for adults}
 }
+For multi-season models, this pattern repeats for each season.
 }
 \usage{
 data(para2)

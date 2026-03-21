@@ -11,12 +11,16 @@
 #'   variables. The formula uses interaction semantics: \code{~age + vac} means all
 #'   age-by-vac combinations. Returns a \code{seroreconstruct_multi} object.
 #' @details
-#' \strong{Multi-season support (experimental):} If \code{inputdata} contains an
-#' optional integer column named \code{season} (0-indexed, contiguous from 0 to
+#' \strong{Multi-season support:} If \code{inputdata} contains an optional integer
+#' column named \code{season} (0-indexed, contiguous from 0 to
 #' \code{n_seasons - 1}), the model fits season-specific infection risk and HAI
 #' protection parameters. When no \code{season} column is present, all individuals
 #' are assigned to a single season (\code{n_seasons = 1}) and behavior is identical
-#' to previous versions.
+#' to previous versions. Validated with simulation recovery studies up to 7 seasons.
+#'
+#' \strong{Single-group design:} The package is designed for single-group-per-chain
+#' analyses. To compare children vs adults, fit each group separately using
+#' \code{group_by = ~age_group} rather than mixing age groups in one chain.
 #'
 #' \strong{Current limitation:} \code{summary()} is not yet implemented for fits
 #' with \code{n_seasons > 1}. Multi-season posterior samples are accessible directly
@@ -144,8 +148,24 @@ output_model_estimate <- function(fitted_MCMC, period) {
 #' The function to simulate the dataset, for validation or other purpose.
 #' @param inputdata The data with the same format that for running MCMC, in dataframe format.
 #' @param inputILI The data for influenza activity used in the inference. The row number should match with the date in the inputdata.
-#' @param para1 The parameter vector for the model parameters, in the following format: 1) the parameter value of the random measurement error, 2) the parameter value of the 2-fold error, 3) the boosting in HAI titer after infection for children (in log2 unit), 4) the waning in HAI titer for children (in log2 unit), 5) the boosting in HAI titer after infection for adults (in log2 unit), 6) the waning in HAI titer for adults (in log2 unit), 7) the scale parameter for children, 8) the scale parameter for adults, 9) the scale parameter for older adults, 10) the log of risk ratio of 2-fold increase in baseline HAI titer
-#' @param para2 The parameter vector for the parameter for the HAI titer distribution. The first 10 elements are the probability that the HAI titer is equal to 0-9 for children, and the elements of 11-20 is the probability that the HAI titer is equal to 0-9 for adults.
+#' @param para1 Numeric vector of active model parameters. Length depends on the
+#'   number of seasons \code{S} (determined by the \code{season} column in
+#'   \code{inputdata}, default \code{S = 1}):
+#'   \itemize{
+#'     \item Elements 1--6 (shared): 1) random measurement error, 2) 2-fold error,
+#'       3) boosting for children (log2), 4) waning for children (log2),
+#'       5) boosting for adults (log2), 6) waning for adults (log2).
+#'     \item Elements 7 to \code{6 + 3*S} (per-season): infection risk scale
+#'       parameters for children, adults, and older adults, repeated for each season.
+#'     \item Elements \code{6 + 3*S + 1} to \code{6 + 4*S} (per-season): log risk
+#'       ratio of 2-fold increase in baseline HAI titer, one per season.
+#'   }
+#'   Total length: \code{6 + 4*S} (e.g., 10 for 1 season, 34 for 7 seasons).
+#'   See \code{\link{para1}} for an example with \code{S = 1}.
+#' @param para2 Numeric vector for baseline HAI titer distributions. Length
+#'   \code{20 * S}: for each season, 10 probabilities for children (HAI titer
+#'   levels 0--9) followed by 10 probabilities for adults.
+#'   See \code{\link{para2}} for an example with \code{S = 1}.
 #' @return A simulated data based on the input parameter vectors, with the format equal to the input data.
 #' @examples
 #' simulated <- simulate_data(inputdata, flu_activity, para1, para2)

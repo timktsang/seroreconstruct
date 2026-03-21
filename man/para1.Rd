@@ -5,18 +5,16 @@
 \alias{para1}
 \title{Example of parameter vector for the main model}
 \format{
-A vector with 10 elements, where each of them is a model parameter:
+A numeric vector with 10 elements (for a single-season model, \code{S = 1}).
+  The general length is \code{6 + 4*S} where \code{S} is the number of seasons.
 \describe{
-  \item{element 1}{the parameter value of the random measurement error}
-  \item{element 2}{the parameter value of the 2-fold error}
-  \item{element 3}{the boosting in HAI titer after infection for children (in log2 unit)}
-  \item{element 4}{the waning in HAI titer for children (in log2 unit)}
-  \item{element 5}{the boosting in HAI titer after infection for adults (in log2 unit)}
-  \item{element 6}{the waning in HAI titer for adults (in log2 unit)}
-  \item{element 7}{the scale parameter for children}
-  \item{element 8}{the scale parameter for adults}
-  \item{element 9}{the scale parameter for older adults}
-  \item{element 10}{the log of risk ratio of 2-fold increase in baseline HAI titer}
+  \item{Elements 1--6 (shared)}{1) random measurement error, 2) 2-fold error,
+    3) boosting for children (log2), 4) waning for children (log2),
+    5) boosting for adults (log2), 6) waning for adults (log2).}
+  \item{Elements 7--9 (per-season)}{infection risk scale parameters for
+    children, adults, and older adults (3 per season).}
+  \item{Element 10 (per-season)}{log risk ratio of 2-fold increase in
+    baseline HAI titer (1 per season).}
 }
 }
 \usage{

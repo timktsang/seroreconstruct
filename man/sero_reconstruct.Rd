@@ -38,12 +38,16 @@ A \code{seroreconstruct_fit} object (when \code{group_by} is \code{NULL})
 The main function to run the MCMC for the Bayesian model, to obtain individual dynamics, model parameters such as infection probability, boosting, waning, and measurement error.
 }
 \details{
-\strong{Multi-season support (experimental):} If \code{inputdata} contains an
-optional integer column named \code{season} (0-indexed, contiguous from 0 to
+\strong{Multi-season support:} If \code{inputdata} contains an optional integer
+column named \code{season} (0-indexed, contiguous from 0 to
 \code{n_seasons - 1}), the model fits season-specific infection risk and HAI
 protection parameters. When no \code{season} column is present, all individuals
 are assigned to a single season (\code{n_seasons = 1}) and behavior is identical
-to previous versions.
+to previous versions. Validated with simulation recovery studies up to 7 seasons.
+
+\strong{Single-group design:} The package is designed for single-group-per-chain
+analyses. To compare children vs adults, fit each group separately using
+\code{group_by = ~age_group} rather than mixing age groups in one chain.
 
 \strong{Current limitation:} \code{summary()} is not yet implemented for fits
 with \code{n_seasons > 1}. Multi-season posterior samples are accessible directly
