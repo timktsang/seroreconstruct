@@ -2,10 +2,13 @@
 
 S3method("[[",seroreconstruct_multi)
 S3method(print,seroreconstruct_fit)
+S3method(print,seroreconstruct_joint)
 S3method(print,seroreconstruct_multi)
 S3method(print,summary.seroreconstruct_fit)
+S3method(print,summary.seroreconstruct_joint)
 S3method(print,summary.seroreconstruct_multi)
 S3method(summary,seroreconstruct_fit)
+S3method(summary,seroreconstruct_joint)
 S3method(summary,seroreconstruct_multi)
 export(output_model_estimate)
 export(sero_reconstruct)

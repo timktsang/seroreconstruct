@@ -10,7 +10,8 @@ sero_reconstruct(
   n_iteration = 2000,
   burnin = 1000,
   thinning = 1,
-  group_by = NULL
+  group_by = NULL,
+  shared = NULL
 )
 }
 \arguments{
@@ -28,6 +29,13 @@ sero_reconstruct(
 When provided, independent MCMCs are fit for each combination of the grouping
 variables. The formula uses interaction semantics: \code{~age + vac} means all
 age-by-vac combinations. Returns a \code{seroreconstruct_multi} object.}
+
+\item{shared}{Optional character vector specifying which parameters to share across
+groups when \code{group_by} is also provided. Valid values: \code{"error"}
+(measurement error), \code{"boosting_waning"} (antibody boosting and waning).
+When specified, a single joint MCMC is run with all groups pooled together,
+sharing the specified parameters while estimating group-specific infection
+probabilities. Returns a \code{seroreconstruct_joint} object.}
 }
 \value{
 A \code{seroreconstruct_fit} object (when \code{group_by} is \code{NULL})
@@ -45,9 +53,16 @@ protection parameters. When no \code{season} column is present, all individuals
 are assigned to a single season (\code{n_seasons = 1}) and behavior is identical
 to previous versions. Validated with simulation recovery studies up to 7 seasons.
 
-\strong{Single-group design:} The package is designed for single-group-per-chain
-analyses. To compare children vs adults, fit each group separately using
-\code{group_by = ~age_group} rather than mixing age groups in one chain.
+\strong{Shared parameters:} When \code{shared} is provided together with
+\code{group_by}, a single joint MCMC chain is run with all individuals pooled.
+Measurement error and boosting/waning parameters are shared across groups
+(informed by all data), while infection risk and HAI protection parameters
+remain group-specific. This is more statistically efficient than independent
+chains when groups share biological or measurement properties.
+
+\strong{Single-group design:} When using \code{group_by} without \code{shared},
+independent MCMCs are fit for each group. To compare children vs adults, fit
+each group separately using \code{group_by = ~age_group}.
 
 \strong{Current limitation:} \code{summary()} is not yet implemented for fits
 with \code{n_seasons > 1}. Multi-season posterior samples are accessible directly

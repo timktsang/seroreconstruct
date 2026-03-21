@@ -75,6 +75,8 @@ summary.seroreconstruct_fit <- function(object, period, ...) {
     mcmc2 <- cbind(object$posterior_baseline_HAI_titer,
                    object$posterior_baseline_HAI_titer[, 11:20])
 
+    hai_col <- 6L + n_groups + 1L  # HAI coef column (dynamic)
+
     xvec <- 0:100
     d1list <- vector("list", 3)
     d1 <- matrix(NA, nrow(mcmc1), 101)
@@ -88,7 +90,7 @@ summary.seroreconstruct_fit <- function(object, period, ...) {
     for (u in 1:3) {
       for (i in seq_len(nrow(mcmc1))) {
         d1[i, ] <- 1 - exp(-(mcmc1[i, 6 + u] * sum(ILI[indrow, 1])) *
-                              exp(xvec / 10 * mcmc1[i, 10]))
+                              exp(xvec / 10 * mcmc1[i, hai_col]))
       }
       d1list[[u]] <- d1
     }
@@ -139,6 +141,11 @@ summary.seroreconstruct_fit <- function(object, period, ...) {
     mcmc1 <- object$posterior_model_parameter
     mcmc2 <- object$posterior_baseline_HAI_titer[, 1:10]
 
+    # Compute column indices dynamically based on n_groups
+    # Active params: 6 shared + n_groups inf_prob + 1 hai_coef (single season)
+    inf_col <- 7L  # first infection risk param is always column 7
+    hai_col <- 6L + n_groups + 1L  # HAI coef follows n_groups inf_probs
+
     xvec <- 0:100
     d1 <- matrix(NA, nrow(mcmc1), 101)
 
@@ -149,8 +156,8 @@ summary.seroreconstruct_fit <- function(object, period, ...) {
     }
 
     for (i in seq_len(nrow(mcmc1))) {
-      d1[i, ] <- 1 - exp(-(mcmc1[i, 7] * sum(ILI[indrow, 1])) *
-                            exp(xvec / 10 * mcmc1[i, 10]))
+      d1[i, ] <- 1 - exp(-(mcmc1[i, inf_col] * sum(ILI[indrow, 1])) *
+                            exp(xvec / 10 * mcmc1[i, hai_col]))
     }
 
     vec <- rowSums(d1[, c(6 + 0:9 * 10)] * mcmc2)
@@ -289,4 +296,152 @@ print.summary.seroreconstruct_multi <- function(x, digits = 2, ...) {
     }
   }
   unclass(x)[[i]]
+}
+
+# ---- seroreconstruct_joint (shared-parameter joint fit) ----
+
+#' Constructor for seroreconstruct_joint objects
+#' @keywords internal
+.new_seroreconstruct_joint <- function(fit, group_labels, group_sizes, shared, n_groups) {
+  attr(fit, "group_labels") <- group_labels
+  attr(fit, "group_sizes") <- group_sizes
+  attr(fit, "shared") <- shared
+  attr(fit, "n_groups_joint") <- n_groups
+  class(fit) <- c("seroreconstruct_joint", "seroreconstruct_fit")
+  fit
+}
+
+#' Print method for seroreconstruct_joint
+#'
+#' @param x A \code{seroreconstruct_joint} object.
+#' @param ... Additional arguments (ignored).
+#' @export
+print.seroreconstruct_joint <- function(x, ...) {
+  cat("seroreconstruct joint fit\n")
+  cat("  Individuals:", attr(x, "n_individuals"), "\n")
+  n_groups <- attr(x, "n_groups_joint")
+  cat("  Groups:", n_groups, "\n")
+  labels <- attr(x, "group_labels")
+  sizes <- attr(x, "group_sizes")
+  for (i in seq_along(labels)) {
+    cat("    ", labels[i], ": N =", sizes[i], "\n")
+  }
+  cat("  Shared:", paste(attr(x, "shared"), collapse = ", "), "\n")
+  n_seasons <- attr(x, "n_seasons")
+  if (!is.null(n_seasons) && n_seasons > 1L) {
+    cat("  Seasons:", n_seasons, "\n")
+  }
+  cat("  Posterior samples:", attr(x, "n_posterior_samples"), "\n")
+  runtime <- attr(x, "runtime_secs")
+  if (!is.null(runtime)) {
+    cat("  Runtime:", round(runtime), "seconds\n")
+  }
+  cat("\nUse summary() to extract model estimates.\n")
+  invisible(x)
+}
+
+#' Summary method for seroreconstruct_joint
+#'
+#' Computes shared parameter estimates and per-group infection probabilities
+#' from a joint fit with shared parameters.
+#'
+#' @param object A \code{seroreconstruct_joint} object.
+#' @param period Optional numeric vector of length 2 specifying the start and end
+#'   of a season to compute infection probabilities.
+#' @param ... Additional arguments (ignored).
+#' @return A \code{summary.seroreconstruct_joint} object with element \code{$table}.
+#' @export
+summary.seroreconstruct_joint <- function(object, period, ...) {
+  n_seasons <- attr(object, "n_seasons")
+  if (is.null(n_seasons)) n_seasons <- 1L
+  if (n_seasons > 1L) {
+    stop("summary() for multi-season joint fits (n_seasons = ", n_seasons,
+         ") is not yet implemented. Use the raw posterior samples directly.",
+         call. = FALSE)
+  }
+
+  n_groups <- attr(object, "n_groups_joint")
+  group_labels <- attr(object, "group_labels")
+  shared <- attr(object, "shared")
+
+  z1 <- .mcmc_summary(object$posterior_model_parameter)
+  z1[1, ] <- z1[1, ] * 10 * 100
+  z1[2, ] <- 0.25 / exp(z1[2, ]) * 100
+  z1[3:4, ] <- 2^(z1[3:4, ])
+
+  mean_ci <- function(v) c(mean(v), quantile(v, c(0.025, 0.975)))
+
+  ILI <- object$ILI_data
+  mcmc1 <- object$posterior_model_parameter
+  mcmc2 <- object$posterior_baseline_HAI_titer[, 1:10]
+
+  hai_col <- 6L + n_groups + 1L
+
+  xvec <- 0:100
+
+  if (missing(period)) {
+    indrow <- min(object$data[, "start_time"]):max(object$data[, "end_time"])
+  } else {
+    indrow <- period[1]:period[2]
+  }
+
+  # Compute per-group infection probabilities
+  group_inf_rows <- list()
+  for (g in seq_len(n_groups)) {
+    inf_col <- 6L + g  # column for this group's infection risk
+    d1 <- matrix(NA, nrow(mcmc1), 101)
+    for (i in seq_len(nrow(mcmc1))) {
+      d1[i, ] <- 1 - exp(-(mcmc1[i, inf_col] * sum(ILI[indrow, 1])) *
+                            exp(xvec / 10 * mcmc1[i, hai_col]))
+    }
+    vec <- rowSums(d1[, c(6 + 0:9 * 10)] * mcmc2)
+
+    group_inf_rows[[g]] <- data.frame(
+      Variable = paste0("Infection probability (", group_labels[g], ")"),
+      `Point estimate` = mean_ci(vec)[1],
+      `Lower bound` = mean_ci(vec)[2],
+      `Upper bound` = mean_ci(vec)[3],
+      check.names = FALSE, stringsAsFactors = FALSE
+    )
+  }
+
+  # Build shared parameter rows
+  shared_rows <- data.frame(matrix(NA, 4, 4))
+  shared_rows[1:4, ] <- z1[1:4, c(4, 1:3)]
+  names(shared_rows) <- c("Variable", "Point estimate", "Lower bound", "Upper bound")
+  shared_rows[, 1] <- c(
+    "Random error (%)",
+    "Two-fold error (%)",
+    "Fold-increase after infection (Boosting)",
+    "Fold-decrease after 1 year (Waning)"
+  )
+
+  # Combine: shared rows + per-group infection rows
+  output <- shared_rows
+  for (g in seq_len(n_groups)) {
+    output <- rbind(output, group_inf_rows[[g]])
+  }
+  rownames(output) <- NULL
+
+  result <- list(table = output, n_groups = n_groups,
+                 group_labels = group_labels, shared = shared)
+  class(result) <- "summary.seroreconstruct_joint"
+  result
+}
+
+#' Print method for summary.seroreconstruct_joint
+#'
+#' @param x A \code{summary.seroreconstruct_joint} object.
+#' @param digits Number of decimal places for rounding. Default 2.
+#' @param ... Additional arguments (ignored).
+#' @method print summary.seroreconstruct_joint
+#' @export
+print.summary.seroreconstruct_joint <- function(x, digits = 2, ...) {
+  tbl <- x$table
+  numeric_cols <- which(vapply(tbl, is.numeric, logical(1)))
+  tbl[, numeric_cols] <- round(tbl[, numeric_cols], digits)
+  print(tbl, row.names = FALSE)
+  cat("\nShared: ", paste(x$shared, collapse = ", "), "\n")
+  cat("Groups: ", paste(x$group_labels, collapse = ", "), "\n")
+  invisible(x)
 }

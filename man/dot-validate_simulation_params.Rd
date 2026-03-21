@@ -4,7 +4,7 @@
 \alias{.validate_simulation_params}
 \title{Validate simulation parameters}
 \usage{
-.validate_simulation_params(para1, para2, n_seasons = 1L)
+.validate_simulation_params(para1, para2, n_seasons = 1L, n_groups = 3L)
 }
 \arguments{
 \item{para1}{Numeric vector of active model parameters (length \code{6 + 4 * n_seasons}).}

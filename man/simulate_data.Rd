@@ -4,7 +4,7 @@
 \alias{simulate_data}
 \title{Simulation of the dataset of the Bayesian model}
 \usage{
-simulate_data(inputdata, inputILI, para1, para2)
+simulate_data(inputdata, inputILI, para1, para2, n_groups = 3L)
 }
 \arguments{
 \item{inputdata}{The data with the same format that for running MCMC, in dataframe format.}
@@ -23,13 +23,17 @@ number of seasons \code{S} (determined by the \code{season} column in
   \item Elements \code{6 + 3*S + 1} to \code{6 + 4*S} (per-season): log risk
     ratio of 2-fold increase in baseline HAI titer, one per season.
 }
-Total length: \code{6 + 4*S} (e.g., 10 for 1 season, 34 for 7 seasons).
-See \code{\link{para1}} for an example with \code{S = 1}.}
+Total length: \code{6 + (G + 1)*S} where \code{G} is \code{n_groups}
+(e.g., 10 for G=3 S=1, 34 for G=3 S=7).
+See \code{\link{para1}} for an example with \code{G = 3, S = 1}.}
 
 \item{para2}{Numeric vector for baseline HAI titer distributions. Length
 \code{20 * S}: for each season, 10 probabilities for children (HAI titer
 levels 0--9) followed by 10 probabilities for adults.
 See \code{\link{para2}} for an example with \code{S = 1}.}
+
+\item{n_groups}{Number of groups for infection risk parameters (default 3
+for the standard 3-age-group model).}
 }
 \value{
 A simulated data based on the input parameter vectors, with the format equal to the input data.

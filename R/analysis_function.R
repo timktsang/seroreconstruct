@@ -10,6 +10,12 @@
 #'   When provided, independent MCMCs are fit for each combination of the grouping
 #'   variables. The formula uses interaction semantics: \code{~age + vac} means all
 #'   age-by-vac combinations. Returns a \code{seroreconstruct_multi} object.
+#' @param shared Optional character vector specifying which parameters to share across
+#'   groups when \code{group_by} is also provided. Valid values: \code{"error"}
+#'   (measurement error), \code{"boosting_waning"} (antibody boosting and waning).
+#'   When specified, a single joint MCMC is run with all groups pooled together,
+#'   sharing the specified parameters while estimating group-specific infection
+#'   probabilities. Returns a \code{seroreconstruct_joint} object.
 #' @details
 #' \strong{Multi-season support:} If \code{inputdata} contains an optional integer
 #' column named \code{season} (0-indexed, contiguous from 0 to
@@ -18,9 +24,16 @@
 #' are assigned to a single season (\code{n_seasons = 1}) and behavior is identical
 #' to previous versions. Validated with simulation recovery studies up to 7 seasons.
 #'
-#' \strong{Single-group design:} The package is designed for single-group-per-chain
-#' analyses. To compare children vs adults, fit each group separately using
-#' \code{group_by = ~age_group} rather than mixing age groups in one chain.
+#' \strong{Shared parameters:} When \code{shared} is provided together with
+#' \code{group_by}, a single joint MCMC chain is run with all individuals pooled.
+#' Measurement error and boosting/waning parameters are shared across groups
+#' (informed by all data), while infection risk and HAI protection parameters
+#' remain group-specific. This is more statistically efficient than independent
+#' chains when groups share biological or measurement properties.
+#'
+#' \strong{Single-group design:} When using \code{group_by} without \code{shared},
+#' independent MCMCs are fit for each group. To compare children vs adults, fit
+#' each group separately using \code{group_by = ~age_group}.
 #'
 #' \strong{Current limitation:} \code{summary()} is not yet implemented for fits
 #' with \code{n_seasons > 1}. Multi-season posterior samples are accessible directly
@@ -37,9 +50,67 @@
 #' }
 #' @export
 sero_reconstruct <- function(inputdata, inputILI, n_iteration = 2000, burnin = 1000,
-                              thinning = 1, group_by = NULL) {
+                              thinning = 1, group_by = NULL, shared = NULL) {
   inputdata <- .validate_inputs(inputdata, inputILI, n_iteration, burnin, thinning, group_by)
 
+  # --- Joint model path: shared parameters across groups ---
+  if (!is.null(group_by) && !is.null(shared)) {
+    if (!is.character(shared)) {
+      stop("'shared' must be a character vector.", call. = FALSE)
+    }
+    valid_shared <- c("error", "boosting_waning")
+    bad <- setdiff(shared, valid_shared)
+    if (length(bad) > 0) {
+      stop("Invalid 'shared' values: ", paste(bad, collapse = ", "),
+           ". Must be from: ", paste(valid_shared, collapse = ", "), call. = FALSE)
+    }
+    if (!inherits(group_by, "formula")) {
+      stop("'group_by' must be a formula (e.g., ~age_group).", call. = FALSE)
+    }
+    group_vars <- all.vars(group_by)
+    missing_vars <- setdiff(group_vars, colnames(inputdata))
+    if (length(missing_vars) > 0) {
+      stop("Variables not found in 'inputdata': ",
+           paste(missing_vars, collapse = ", "), call. = FALSE)
+    }
+
+    groups <- interaction(inputdata[, group_vars, drop = FALSE], drop = TRUE)
+    group_labels <- levels(groups)
+    group_sizes <- vapply(group_labels, function(g) sum(groups == g), integer(1))
+    n_groups <- length(group_labels)
+
+    for (g in group_labels) {
+      if (group_sizes[g] < 10) {
+        stop("Group '", g, "' has only ", group_sizes[g],
+             " individuals (< 10 minimum).", call. = FALSE)
+      }
+      if (group_sizes[g] < 30) {
+        warning("Group '", g, "' has only ", group_sizes[g],
+                " individuals (< 30). Estimates may be unreliable.", call. = FALSE)
+      }
+    }
+
+    # Map group_id (0-indexed) into age_group column for infection risk indexing
+    inputdata$age_group <- as.integer(groups) - 1L
+
+    # Set boost_wane_group based on sharing
+    if ("boosting_waning" %in% shared) {
+      inputdata$boost_wane_group <- 0L  # all share same boosting/waning
+    } else {
+      inputdata$boost_wane_group <- as.integer(inputdata$age_group > 0)
+    }
+
+    message("Fitting joint model with ", n_groups, " groups (",
+            paste(group_labels, collapse = ", "), ")")
+    message("Shared parameters: ", paste(shared, collapse = ", "))
+
+    fit <- .fit_single(inputdata, inputILI, n_iteration, burnin, thinning,
+                       n_groups = n_groups)
+
+    return(.new_seroreconstruct_joint(fit, group_labels, group_sizes, shared, n_groups))
+  }
+
+  # --- Independent chains path (existing behavior) ---
   if (!is.null(group_by)) {
     if (!inherits(group_by, "formula")) {
       stop("'group_by' must be a formula (e.g., ~age_group).", call. = FALSE)
@@ -160,17 +231,20 @@ output_model_estimate <- function(fitted_MCMC, period) {
 #'     \item Elements \code{6 + 3*S + 1} to \code{6 + 4*S} (per-season): log risk
 #'       ratio of 2-fold increase in baseline HAI titer, one per season.
 #'   }
-#'   Total length: \code{6 + 4*S} (e.g., 10 for 1 season, 34 for 7 seasons).
-#'   See \code{\link{para1}} for an example with \code{S = 1}.
+#'   Total length: \code{6 + (G + 1)*S} where \code{G} is \code{n_groups}
+#'   (e.g., 10 for G=3 S=1, 34 for G=3 S=7).
+#'   See \code{\link{para1}} for an example with \code{G = 3, S = 1}.
 #' @param para2 Numeric vector for baseline HAI titer distributions. Length
 #'   \code{20 * S}: for each season, 10 probabilities for children (HAI titer
 #'   levels 0--9) followed by 10 probabilities for adults.
 #'   See \code{\link{para2}} for an example with \code{S = 1}.
+#' @param n_groups Number of groups for infection risk parameters (default 3
+#'   for the standard 3-age-group model).
 #' @return A simulated data based on the input parameter vectors, with the format equal to the input data.
 #' @examples
 #' simulated <- simulate_data(inputdata, flu_activity, para1, para2)
 #' @export
-simulate_data <- function(inputdata, inputILI, para1, para2) {
+simulate_data <- function(inputdata, inputILI, para1, para2, n_groups = 3L) {
   if (!is.data.frame(inputdata)) {
     stop("'inputdata' must be a data frame.", call. = FALSE)
   }
@@ -181,29 +255,29 @@ simulate_data <- function(inputdata, inputILI, para1, para2) {
 
   # Determine n_seasons from the season column (col 12 in R 1-indexed, 0-indexed values)
   n_seasons <- as.integer(max(inputdata_mat[, 12]) + 1L)
-  hai_start_c <- 42L + 3L * n_seasons
-  n_para <- 42L + 5L * n_seasons
+  hai_start_c <- 42L + n_groups * n_seasons
+  n_para <- 42L + (n_groups + 2L) * n_seasons
 
-  .validate_simulation_params(para1, para2, n_seasons)
+  .validate_simulation_params(para1, para2, n_seasons, n_groups)
 
   # Build full parameter vector and insert user params at active positions
   int_para <- c(0.005, rep(0.6, 17), rep(c(3.5, 0.5), 12),
-                rep(c(0.4, 0.2, 0.2), n_seasons),
+                rep(0.4, n_groups * n_seasons),
                 rep(-0.1, 2L * n_seasons))
 
   move <- rep(0L, n_para)
   move[1] <- 1L
   move[2] <- 1L
   move[27:30] <- 1L
-  move[43:(42L + 3L * n_seasons)] <- 1L
+  move[43:(42L + n_groups * n_seasons)] <- 1L
   for (s in seq_len(n_seasons)) {
-    move[42L + 3L * n_seasons + 2L * (s - 1L) + 1L] <- 1L
+    move[42L + n_groups * n_seasons + 2L * (s - 1L) + 1L] <- 1L
   }
   int_para[which(move == 1)] <- para1
 
   int_para2 <- para2
 
-  t <- sim_data(inputdata_mat, inputILI_mat, int_para, int_para2, hai_start_c)
+  t <- sim_data(inputdata_mat, inputILI_mat, int_para, int_para2, hai_start_c, n_groups)
 
   return(data.frame(t[[2]][, 2 + 1:9]))
 }

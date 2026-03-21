@@ -12,20 +12,21 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // prior_loglik
-double prior_loglik(NumericVector para, int n_seasons);
-RcppExport SEXP _seroreconstruct_prior_loglik(SEXP paraSEXP, SEXP n_seasonsSEXP) {
+double prior_loglik(NumericVector para, int n_seasons, int n_groups);
+RcppExport SEXP _seroreconstruct_prior_loglik(SEXP paraSEXP, SEXP n_seasonsSEXP, SEXP n_groupsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type para(paraSEXP);
     Rcpp::traits::input_parameter< int >::type n_seasons(n_seasonsSEXP);
-    rcpp_result_gen = Rcpp::wrap(prior_loglik(para, n_seasons));
+    Rcpp::traits::input_parameter< int >::type n_groups(n_groupsSEXP);
+    rcpp_result_gen = Rcpp::wrap(prior_loglik(para, n_seasons, n_groups));
     return rcpp_result_gen;
 END_RCPP
 }
 // sim_data
-List sim_data(NumericMatrix data1, NumericMatrix ILI, NumericVector para, NumericVector para2, int hai_start);
-RcppExport SEXP _seroreconstruct_sim_data(SEXP data1SEXP, SEXP ILISEXP, SEXP paraSEXP, SEXP para2SEXP, SEXP hai_startSEXP) {
+List sim_data(NumericMatrix data1, NumericMatrix ILI, NumericVector para, NumericVector para2, int hai_start, int n_groups);
+RcppExport SEXP _seroreconstruct_sim_data(SEXP data1SEXP, SEXP ILISEXP, SEXP paraSEXP, SEXP para2SEXP, SEXP hai_startSEXP, SEXP n_groupsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -34,13 +35,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type para(paraSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type para2(para2SEXP);
     Rcpp::traits::input_parameter< int >::type hai_start(hai_startSEXP);
-    rcpp_result_gen = Rcpp::wrap(sim_data(data1, ILI, para, para2, hai_start));
+    Rcpp::traits::input_parameter< int >::type n_groups(n_groupsSEXP);
+    rcpp_result_gen = Rcpp::wrap(sim_data(data1, ILI, para, para2, hai_start, n_groups));
     return rcpp_result_gen;
 END_RCPP
 }
 // loglik
-List loglik(NumericMatrix data11, NumericMatrix data111, NumericMatrix data21, NumericMatrix ILI, NumericVector para, NumericVector para2, int level1, int level2, int level3, int season, NumericMatrix blankmatrix, int hai_start);
-RcppExport SEXP _seroreconstruct_loglik(SEXP data11SEXP, SEXP data111SEXP, SEXP data21SEXP, SEXP ILISEXP, SEXP paraSEXP, SEXP para2SEXP, SEXP level1SEXP, SEXP level2SEXP, SEXP level3SEXP, SEXP seasonSEXP, SEXP blankmatrixSEXP, SEXP hai_startSEXP) {
+List loglik(NumericMatrix data11, NumericMatrix data111, NumericMatrix data21, NumericMatrix ILI, NumericVector para, NumericVector para2, int level1, int level2, int level3, int season, NumericMatrix blankmatrix, int hai_start, int n_groups);
+RcppExport SEXP _seroreconstruct_loglik(SEXP data11SEXP, SEXP data111SEXP, SEXP data21SEXP, SEXP ILISEXP, SEXP paraSEXP, SEXP para2SEXP, SEXP level1SEXP, SEXP level2SEXP, SEXP level3SEXP, SEXP seasonSEXP, SEXP blankmatrixSEXP, SEXP hai_startSEXP, SEXP n_groupsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -56,13 +58,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type season(seasonSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type blankmatrix(blankmatrixSEXP);
     Rcpp::traits::input_parameter< int >::type hai_start(hai_startSEXP);
-    rcpp_result_gen = Rcpp::wrap(loglik(data11, data111, data21, ILI, para, para2, level1, level2, level3, season, blankmatrix, hai_start));
+    Rcpp::traits::input_parameter< int >::type n_groups(n_groupsSEXP);
+    rcpp_result_gen = Rcpp::wrap(loglik(data11, data111, data21, ILI, para, para2, level1, level2, level3, season, blankmatrix, hai_start, n_groups));
     return rcpp_result_gen;
 END_RCPP
 }
 // all_update
-List all_update(NumericMatrix data11, NumericMatrix data111, NumericMatrix data21, NumericMatrix ILI, NumericVector para, NumericVector para2, NumericMatrix loglik1, NumericMatrix loglik2, NumericMatrix loglik3, int hai_start);
-RcppExport SEXP _seroreconstruct_all_update(SEXP data11SEXP, SEXP data111SEXP, SEXP data21SEXP, SEXP ILISEXP, SEXP paraSEXP, SEXP para2SEXP, SEXP loglik1SEXP, SEXP loglik2SEXP, SEXP loglik3SEXP, SEXP hai_startSEXP) {
+List all_update(NumericMatrix data11, NumericMatrix data111, NumericMatrix data21, NumericMatrix ILI, NumericVector para, NumericVector para2, NumericMatrix loglik1, NumericMatrix loglik2, NumericMatrix loglik3, int hai_start, int n_groups);
+RcppExport SEXP _seroreconstruct_all_update(SEXP data11SEXP, SEXP data111SEXP, SEXP data21SEXP, SEXP ILISEXP, SEXP paraSEXP, SEXP para2SEXP, SEXP loglik1SEXP, SEXP loglik2SEXP, SEXP loglik3SEXP, SEXP hai_startSEXP, SEXP n_groupsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -76,13 +79,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type loglik2(loglik2SEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type loglik3(loglik3SEXP);
     Rcpp::traits::input_parameter< int >::type hai_start(hai_startSEXP);
-    rcpp_result_gen = Rcpp::wrap(all_update(data11, data111, data21, ILI, para, para2, loglik1, loglik2, loglik3, hai_start));
+    Rcpp::traits::input_parameter< int >::type n_groups(n_groupsSEXP);
+    rcpp_result_gen = Rcpp::wrap(all_update(data11, data111, data21, ILI, para, para2, loglik1, loglik2, loglik3, hai_start, n_groups));
     return rcpp_result_gen;
 END_RCPP
 }
 // add_remove_infection
-List add_remove_infection(NumericMatrix data11, NumericMatrix data111, NumericMatrix data21, NumericMatrix ILI, NumericVector para, NumericVector para2, NumericMatrix loglik1, NumericMatrix loglik2, NumericMatrix loglik3, int hai_start);
-RcppExport SEXP _seroreconstruct_add_remove_infection(SEXP data11SEXP, SEXP data111SEXP, SEXP data21SEXP, SEXP ILISEXP, SEXP paraSEXP, SEXP para2SEXP, SEXP loglik1SEXP, SEXP loglik2SEXP, SEXP loglik3SEXP, SEXP hai_startSEXP) {
+List add_remove_infection(NumericMatrix data11, NumericMatrix data111, NumericMatrix data21, NumericMatrix ILI, NumericVector para, NumericVector para2, NumericMatrix loglik1, NumericMatrix loglik2, NumericMatrix loglik3, int hai_start, int n_groups);
+RcppExport SEXP _seroreconstruct_add_remove_infection(SEXP data11SEXP, SEXP data111SEXP, SEXP data21SEXP, SEXP ILISEXP, SEXP paraSEXP, SEXP para2SEXP, SEXP loglik1SEXP, SEXP loglik2SEXP, SEXP loglik3SEXP, SEXP hai_startSEXP, SEXP n_groupsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -96,13 +100,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type loglik2(loglik2SEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type loglik3(loglik3SEXP);
     Rcpp::traits::input_parameter< int >::type hai_start(hai_startSEXP);
-    rcpp_result_gen = Rcpp::wrap(add_remove_infection(data11, data111, data21, ILI, para, para2, loglik1, loglik2, loglik3, hai_start));
+    Rcpp::traits::input_parameter< int >::type n_groups(n_groupsSEXP);
+    rcpp_result_gen = Rcpp::wrap(add_remove_infection(data11, data111, data21, ILI, para, para2, loglik1, loglik2, loglik3, hai_start, n_groups));
     return rcpp_result_gen;
 END_RCPP
 }
 // mcmc
-List mcmc(NumericMatrix input1, NumericMatrix input2, NumericMatrix input3, NumericMatrix ILI, int mcmc_n, NumericVector int_para, NumericVector int_para2, NumericVector int_para3, NumericVector paraseason, NumericVector move, NumericVector sigma, NumericVector sigma3, int burnin, int thinning, int n_seasons);
-RcppExport SEXP _seroreconstruct_mcmc(SEXP input1SEXP, SEXP input2SEXP, SEXP input3SEXP, SEXP ILISEXP, SEXP mcmc_nSEXP, SEXP int_paraSEXP, SEXP int_para2SEXP, SEXP int_para3SEXP, SEXP paraseasonSEXP, SEXP moveSEXP, SEXP sigmaSEXP, SEXP sigma3SEXP, SEXP burninSEXP, SEXP thinningSEXP, SEXP n_seasonsSEXP) {
+List mcmc(NumericMatrix input1, NumericMatrix input2, NumericMatrix input3, NumericMatrix ILI, int mcmc_n, NumericVector int_para, NumericVector int_para2, NumericVector int_para3, NumericVector paraseason, NumericVector move, NumericVector sigma, NumericVector sigma3, int burnin, int thinning, int n_seasons, int n_groups);
+RcppExport SEXP _seroreconstruct_mcmc(SEXP input1SEXP, SEXP input2SEXP, SEXP input3SEXP, SEXP ILISEXP, SEXP mcmc_nSEXP, SEXP int_paraSEXP, SEXP int_para2SEXP, SEXP int_para3SEXP, SEXP paraseasonSEXP, SEXP moveSEXP, SEXP sigmaSEXP, SEXP sigma3SEXP, SEXP burninSEXP, SEXP thinningSEXP, SEXP n_seasonsSEXP, SEXP n_groupsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -121,18 +126,19 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type burnin(burninSEXP);
     Rcpp::traits::input_parameter< int >::type thinning(thinningSEXP);
     Rcpp::traits::input_parameter< int >::type n_seasons(n_seasonsSEXP);
-    rcpp_result_gen = Rcpp::wrap(mcmc(input1, input2, input3, ILI, mcmc_n, int_para, int_para2, int_para3, paraseason, move, sigma, sigma3, burnin, thinning, n_seasons));
+    Rcpp::traits::input_parameter< int >::type n_groups(n_groupsSEXP);
+    rcpp_result_gen = Rcpp::wrap(mcmc(input1, input2, input3, ILI, mcmc_n, int_para, int_para2, int_para3, paraseason, move, sigma, sigma3, burnin, thinning, n_seasons, n_groups));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_seroreconstruct_prior_loglik", (DL_FUNC) &_seroreconstruct_prior_loglik, 2},
-    {"_seroreconstruct_sim_data", (DL_FUNC) &_seroreconstruct_sim_data, 5},
-    {"_seroreconstruct_loglik", (DL_FUNC) &_seroreconstruct_loglik, 12},
-    {"_seroreconstruct_all_update", (DL_FUNC) &_seroreconstruct_all_update, 10},
-    {"_seroreconstruct_add_remove_infection", (DL_FUNC) &_seroreconstruct_add_remove_infection, 10},
-    {"_seroreconstruct_mcmc", (DL_FUNC) &_seroreconstruct_mcmc, 15},
+    {"_seroreconstruct_prior_loglik", (DL_FUNC) &_seroreconstruct_prior_loglik, 3},
+    {"_seroreconstruct_sim_data", (DL_FUNC) &_seroreconstruct_sim_data, 6},
+    {"_seroreconstruct_loglik", (DL_FUNC) &_seroreconstruct_loglik, 13},
+    {"_seroreconstruct_all_update", (DL_FUNC) &_seroreconstruct_all_update, 11},
+    {"_seroreconstruct_add_remove_infection", (DL_FUNC) &_seroreconstruct_add_remove_infection, 11},
+    {"_seroreconstruct_mcmc", (DL_FUNC) &_seroreconstruct_mcmc, 16},
     {NULL, NULL, 0}
 };
 

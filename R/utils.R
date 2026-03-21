@@ -14,18 +14,23 @@
   if ("HAI_titer_3" %in% colnames(inputdata) && !"HAI_titer3" %in% colnames(inputdata)) {
     colnames(inputdata)[colnames(inputdata) == "HAI_titer_3"] <- "HAI_titer3"
   }
-  # Capture season column before subsetting to required columns
+  # Capture columns before subsetting to required columns
   if ("season" %in% colnames(inputdata)) {
     season_col <- inputdata$season
   } else {
     season_col <- rep(0L, nrow(inputdata))
+  }
+  if ("boost_wane_group" %in% colnames(inputdata)) {
+    bwg_col <- inputdata$boost_wane_group
+  } else {
+    bwg_col <- as.integer(inputdata$age_group > 0)
   }
   inputdata <- inputdata[, c("age_group", "start_time", "end_time", "time1", "time2",
                               "time3", "HAI_titer_1", "HAI_titer_2", "HAI_titer3")]
   inputdata <- cbind(0, 0, inputdata)
   inputdata[, 4:8] <- inputdata[, 4:8] - 14
   inputdata[is.na(inputdata)] <- -1
-  inputdata <- cbind(inputdata, season_col, 0, 2)
+  inputdata <- cbind(inputdata, season_col, 0, 2, bwg_col)
   inputILI[inputILI < 0] <- 1e-11
   inputdata <- as.matrix(inputdata)
   inputILI <- as.matrix(inputILI)
@@ -164,11 +169,11 @@
 #' @param para2 Numeric vector of baseline HAI titer distribution (length \code{20 * n_seasons}).
 #' @param n_seasons Number of seasons. Default 1.
 #' @keywords internal
-.validate_simulation_params <- function(para1, para2, n_seasons = 1L) {
-  expected_para1_len <- 6L + 4L * n_seasons
+.validate_simulation_params <- function(para1, para2, n_seasons = 1L, n_groups = 3L) {
+  expected_para1_len <- 6L + (n_groups + 1L) * n_seasons
   if (!is.numeric(para1) || length(para1) != expected_para1_len) {
     stop("'para1' must be a numeric vector of length ", expected_para1_len,
-         " (6 + 4 * n_seasons).", call. = FALSE)
+         " (6 + (n_groups + 1) * n_seasons).", call. = FALSE)
   }
   expected_para2_len <- 20L * n_seasons
   if (!is.numeric(para2) || length(para2) != expected_para2_len) {
@@ -208,15 +213,15 @@
 
   # Determine n_seasons from the season column (col 12 in R 1-indexed, 0-indexed values)
   n_seasons <- as.integer(max(inputdata[, 12]) + 1L)
-  hai_start_c <- 42L + 3L * n_seasons  # C++ 0-indexed
-  n_para <- 42L + 5L * n_seasons
+  hai_start_c <- 42L + n_groups * n_seasons  # C++ 0-indexed
+  n_para <- 42L + (n_groups + 2L) * n_seasons
 
   # Build parameter vectors dynamically
   # Block 1: random error (1) + two-fold error (17) + boosting/waning (24)
-  # Block 2: infection risk (3 per season)
+  # Block 2: infection risk (n_groups per season)
   # Block 3: HAI protection (2 per season)
   int_para <- c(0.005, rep(0.6, 17), rep(c(3.5, 0.5), 12),
-                rep(c(0.4, 0.2, 0.2), n_seasons),
+                rep(0.4, n_groups * n_seasons),
                 rep(-0.1, 2L * n_seasons))
 
   # Baseline HAI titer distribution: 10 levels x 2 age groups x n_seasons
@@ -227,7 +232,7 @@
   # Dirichlet hyperparameters: 2 per season
   int_para3 <- rep(1, 2L * n_seasons)
 
-  t <- sim_data(inputdata, inputILI, int_para, int_para2, hai_start_c)
+  t <- sim_data(inputdata, inputILI, int_para, int_para2, hai_start_c, n_groups)
 
   input1 <- t[[1]]
   input3 <- t[[3]]
@@ -240,21 +245,21 @@
   move[1] <- 1L  # random error
   move[2] <- 1L  # two-fold error (first)
   move[27:30] <- 1L  # boosting/waning (4 params for boost_group=2)
-  # All infection risk params
-  move[43:(42L + 3L * n_seasons)] <- 1L
+  # All infection risk params (n_groups per season)
+  move[43:(42L + n_groups * n_seasons)] <- 1L
   # First HAI param per season (the one that moves; second is fixed)
   for (s in seq_len(n_seasons)) {
-    move[42L + 3L * n_seasons + 2L * (s - 1L) + 1L] <- 1L
+    move[42L + n_groups * n_seasons + 2L * (s - 1L) + 1L] <- 1L
   }
 
   # Season assignment for each parameter (used for selective likelihood updates)
   paraseason <- c(rep(0L, 42L),
-                  rep(seq_len(n_seasons), each = 3L),
+                  rep(seq_len(n_seasons), each = n_groups),
                   rep(seq_len(n_seasons), each = 2L))
 
   tt <- mcmc(input1, inputdata, input3, inputILI, n_iteration,
              int_para, int_para2, int_para3, paraseason,
-             move, sigma, sigma3, burnin, thinning, n_seasons)
+             move, sigma, sigma3, burnin, thinning, n_seasons, n_groups)
 
   t_end <- Sys.time()
   runtime <- as.numeric(difftime(t_end, t_start, units = "secs"))

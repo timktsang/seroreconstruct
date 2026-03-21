@@ -19,6 +19,7 @@ hemagglutination-inhibiting (HAI) titers to infection risk.
 - **Bayesian MCMC inference** of infection probability, antibody boosting/waning, and measurement error
 - **Multi-season support** — fit season-specific infection risk and HAI protection parameters
 - **Subgroup comparisons** via `group_by` — fit independent MCMCs for age groups, vaccination status, or other strata
+- **Shared parameters** via `shared` — run a joint model that shares measurement error and/or boosting/waning across groups while estimating group-specific infection risk
 - **S3 classes** with `print()` and `summary()` methods for clean output
 - **Simulation** — generate synthetic datasets for validation and power analysis
 
@@ -68,6 +69,33 @@ summary(fit_by_age)
 # Access individual group fits
 summary(fit_by_age[["1"]])
 ```
+
+### Joint model with shared parameters
+
+When comparing groups (e.g., vaccinated vs unvaccinated), some parameters
+are biologically shared (measurement error, antibody dynamics) while
+infection risk differs between groups. Use `shared` to run a single joint
+MCMC that shares the specified parameters:
+
+``` r
+# Share measurement error and boosting/waning across vaccine groups
+fit_joint <- sero_reconstruct(inputdata, flu_activity,
+                              n_iteration = 20000, burnin = 10000,
+                              thinning = 5,
+                              group_by = ~vaccine,
+                              shared = c("error", "boosting_waning"))
+
+print(fit_joint)
+```
+
+Available shared parameter types:
+
+| Value | Parameters shared | Rationale |
+|-------|-------------------|-----------|
+| `"error"` | Random + two-fold measurement error | Lab measurement property, same for all groups |
+| `"boosting_waning"` | Antibody boosting and waning rates | Biological response, may be shared across groups |
+
+Infection probability and HAI protection are always group-specific.
 
 ### Multi-season analysis
 
