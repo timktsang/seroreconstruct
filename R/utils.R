@@ -14,12 +14,18 @@
   if ("HAI_titer_3" %in% colnames(inputdata) && !"HAI_titer3" %in% colnames(inputdata)) {
     colnames(inputdata)[colnames(inputdata) == "HAI_titer_3"] <- "HAI_titer3"
   }
+  # Capture season column before subsetting to required columns
+  if ("season" %in% colnames(inputdata)) {
+    season_col <- inputdata$season
+  } else {
+    season_col <- rep(0L, nrow(inputdata))
+  }
   inputdata <- inputdata[, c("age_group", "start_time", "end_time", "time1", "time2",
                               "time3", "HAI_titer_1", "HAI_titer_2", "HAI_titer3")]
   inputdata <- cbind(0, 0, inputdata)
   inputdata[, 4:8] <- inputdata[, 4:8] - 14
   inputdata[is.na(inputdata)] <- -1
-  inputdata <- cbind(inputdata, 2, 0, 2)
+  inputdata <- cbind(inputdata, season_col, 0, 2)
   inputILI[inputILI < 0] <- 1e-11
   inputdata <- as.matrix(inputdata)
   inputILI <- as.matrix(inputILI)
@@ -114,6 +120,26 @@
   if (n_iteration <= burnin) {
     stop("'n_iteration' must be greater than 'burnin'.", call. = FALSE)
   }
+  # Validate season column if present
+  if ("season" %in% colnames(inputdata)) {
+    season_vals <- inputdata$season
+    if (!is.numeric(season_vals) || any(season_vals != as.integer(season_vals))) {
+      stop("'inputdata$season' must contain integer values.", call. = FALSE)
+    }
+    if (min(season_vals) != 0L) {
+      stop("'inputdata$season' must be 0-indexed (minimum value must be 0).",
+           call. = FALSE)
+    }
+    n_seasons <- max(season_vals) + 1L
+    expected <- seq(0L, n_seasons - 1L)
+    if (!all(expected %in% season_vals)) {
+      stop("'inputdata$season' must be contiguous (0 to ", n_seasons - 1L,
+           "). Missing seasons: ",
+           paste(setdiff(expected, unique(season_vals)), collapse = ", "),
+           call. = FALSE)
+    }
+  }
+
   if (is.null(group_by)) {
     age_vals <- unique(inputdata$age_group[!is.na(inputdata$age_group)])
     invalid_ages <- setdiff(age_vals, c(0, 1, 2))
@@ -134,15 +160,20 @@
 
 #' Validate simulation parameters
 #'
-#' @param para1 Numeric vector of length 10.
-#' @param para2 Numeric vector of length 20.
+#' @param para1 Numeric vector of active model parameters (length \code{6 + 4 * n_seasons}).
+#' @param para2 Numeric vector of baseline HAI titer distribution (length \code{20 * n_seasons}).
+#' @param n_seasons Number of seasons. Default 1.
 #' @keywords internal
-.validate_simulation_params <- function(para1, para2) {
-  if (!is.numeric(para1) || length(para1) != 10) {
-    stop("'para1' must be a numeric vector of length 10.", call. = FALSE)
+.validate_simulation_params <- function(para1, para2, n_seasons = 1L) {
+  expected_para1_len <- 6L + 4L * n_seasons
+  if (!is.numeric(para1) || length(para1) != expected_para1_len) {
+    stop("'para1' must be a numeric vector of length ", expected_para1_len,
+         " (6 + 4 * n_seasons).", call. = FALSE)
   }
-  if (!is.numeric(para2) || length(para2) != 20) {
-    stop("'para2' must be a numeric vector of length 20.", call. = FALSE)
+  expected_para2_len <- 20L * n_seasons
+  if (!is.numeric(para2) || length(para2) != expected_para2_len) {
+    stop("'para2' must be a numeric vector of length ", expected_para2_len,
+         " (20 * n_seasons).", call. = FALSE)
   }
   if (any(!is.finite(para1))) {
     stop("'para1' must contain only finite values.", call. = FALSE)
@@ -175,46 +206,69 @@
   inputdata <- prepared$inputdata
   inputILI <- prepared$inputILI
 
+  # Determine n_seasons from the season column (col 12 in R 1-indexed, 0-indexed values)
+  n_seasons <- as.integer(max(inputdata[, 12]) + 1L)
+  hai_start_c <- 42L + 3L * n_seasons  # C++ 0-indexed
+  n_para <- 42L + 5L * n_seasons
+
+  # Build parameter vectors dynamically
+  # Block 1: random error (1) + two-fold error (17) + boosting/waning (24)
+  # Block 2: infection risk (3 per season)
+  # Block 3: HAI protection (2 per season)
   int_para <- c(0.005, rep(0.6, 17), rep(c(3.5, 0.5), 12),
-                rep(c(0.4, 0.2, 0.2), 7), rep(-0.1, 12))
+                rep(c(0.4, 0.2, 0.2), n_seasons),
+                rep(-0.1, 2L * n_seasons))
 
-  int_para2 <- c(0.82, 0.08, 0.065, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005,
-                 0.87, 0.04, 0.04, 0.015, 0.01, 0.005, 0.005, 0.005, 0.005, 0.005,
-                 0.82, 0.08, 0.065, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005,
-                 0.87, 0.04, 0.04, 0.015, 0.01, 0.005, 0.005, 0.005, 0.005, 0.005,
-                 0.82, 0.08, 0.065, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005,
-                 0.87, 0.04, 0.04, 0.015, 0.01, 0.005, 0.005, 0.005, 0.005, 0.005,
-                 0.82, 0.08, 0.065, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005,
-                 0.87, 0.04, 0.04, 0.015, 0.01, 0.005, 0.005, 0.005, 0.005, 0.005,
-                 0.82, 0.08, 0.065, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005,
-                 0.87, 0.04, 0.04, 0.015, 0.01, 0.005, 0.005, 0.005, 0.005, 0.005,
-                 0.82, 0.08, 0.065, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005,
-                 0.87, 0.04, 0.04, 0.015, 0.01, 0.005, 0.005, 0.005, 0.005, 0.005)
+  # Baseline HAI titer distribution: 10 levels x 2 age groups x n_seasons
+  titer_block <- c(0.82, 0.08, 0.065, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005,
+                   0.87, 0.04, 0.04, 0.015, 0.01, 0.005, 0.005, 0.005, 0.005, 0.005)
+  int_para2 <- rep(titer_block, n_seasons)
 
-  t <- sim_data(inputdata, inputILI, int_para, int_para2)
+  # Dirichlet hyperparameters: 2 per season
+  int_para3 <- rep(1, 2L * n_seasons)
+
+  t <- sim_data(inputdata, inputILI, int_para, int_para2, hai_start_c)
 
   input1 <- t[[1]]
   input3 <- t[[3]]
 
   sigma <- abs(int_para) / 10
-  move <- rep(1, length(int_para))
-  int_para3 <- rep(1, 12)
   sigma3 <- int_para3 / 10
-  move[c(4:18, 35:42, 64:65, 67, 69, 71, 73, 75)] <- 0
-  move[c(3, 19:26, 31:51, 55:67, 69:75)] <- 0
-  int_para[64:65] <- 0
-  paraseason <- c(rep(0, 42), rep(1, 6), rep(2:6, each = 3), rep(1:6, each = 2))
+
+  # Move vector: which parameters are active in MCMC
+  move <- rep(0L, n_para)
+  move[1] <- 1L  # random error
+  move[2] <- 1L  # two-fold error (first)
+  move[27:30] <- 1L  # boosting/waning (4 params for boost_group=2)
+  # All infection risk params
+  move[43:(42L + 3L * n_seasons)] <- 1L
+  # First HAI param per season (the one that moves; second is fixed)
+  for (s in seq_len(n_seasons)) {
+    move[42L + 3L * n_seasons + 2L * (s - 1L) + 1L] <- 1L
+  }
+
+  # Season assignment for each parameter (used for selective likelihood updates)
+  paraseason <- c(rep(0L, 42L),
+                  rep(seq_len(n_seasons), each = 3L),
+                  rep(seq_len(n_seasons), each = 2L))
 
   tt <- mcmc(input1, inputdata, input3, inputILI, n_iteration,
              int_para, int_para2, int_para3, paraseason,
-             move, sigma, sigma3, burnin, thinning)
+             move, sigma, sigma3, burnin, thinning, n_seasons)
 
   t_end <- Sys.time()
   runtime <- as.numeric(difftime(t_end, t_start, units = "secs"))
 
+  # Extract posterior baseline HAI titer for the first season
+  # para2 columns: 10 levels x 2 age groups x n_seasons
+  # For backward compat, extract columns for the first season + duplicate for 3-group display
+  hai_cols_start <- 20L * (n_seasons - 1L) + 1L
+  hai_cols_end <- 20L * n_seasons
+  posterior_hai <- tt[[2]][keep_iteration, hai_cols_start:hai_cols_end, drop = FALSE]
+
   output <- list(
-    posterior_model_parameter = tt[[1]][keep_iteration, which(move == 1)],
-    posterior_baseline_HAI_titer = tt[[2]][keep_iteration, 41:60],
+    posterior_model_parameter = tt[[1]][keep_iteration, which(move == 1), drop = FALSE],
+    posterior_baseline_HAI_titer = posterior_hai,
     posterior_inf_status = tt[[13]],
     posterior_inf_time = tt[[14]],
     posterior_waning = tt[[15]],
@@ -230,5 +284,6 @@
                             n_groups = n_groups,
                             n_individuals = n_individuals,
                             n_posterior_samples = length(keep_iteration),
+                            n_seasons = n_seasons,
                             runtime_secs = runtime)
 }

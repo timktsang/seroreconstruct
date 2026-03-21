@@ -5,10 +5,12 @@
 #' Constructor for seroreconstruct_fit objects
 #' @keywords internal
 .new_seroreconstruct_fit <- function(output, n_groups, n_individuals,
-                                      n_posterior_samples, runtime_secs) {
+                                      n_posterior_samples, n_seasons = 1L,
+                                      runtime_secs) {
   attr(output, "n_groups") <- n_groups
   attr(output, "n_individuals") <- n_individuals
   attr(output, "n_posterior_samples") <- n_posterior_samples
+  attr(output, "n_seasons") <- n_seasons
   attr(output, "runtime_secs") <- runtime_secs
   class(output) <- "seroreconstruct_fit"
   output
@@ -23,6 +25,10 @@ print.seroreconstruct_fit <- function(x, ...) {
   cat("seroreconstruct fit\n")
   cat("  Individuals:", attr(x, "n_individuals"), "\n")
   cat("  Age groups:", attr(x, "n_groups"), "\n")
+  n_seasons <- attr(x, "n_seasons")
+  if (!is.null(n_seasons) && n_seasons > 1L) {
+    cat("  Seasons:", n_seasons, "\n")
+  }
   cat("  Posterior samples:", attr(x, "n_posterior_samples"), "\n")
   runtime <- attr(x, "runtime_secs")
   if (!is.null(runtime)) {
@@ -45,6 +51,14 @@ print.seroreconstruct_fit <- function(x, ...) {
 #' @return A \code{summary.seroreconstruct_fit} object with element \code{$table}.
 #' @export
 summary.seroreconstruct_fit <- function(object, period, ...) {
+  n_seasons <- attr(object, "n_seasons")
+  if (is.null(n_seasons)) n_seasons <- 1L
+  if (n_seasons > 1L) {
+    stop("summary() for multi-season fits (n_seasons = ", n_seasons,
+         ") is not yet implemented. Use the raw posterior samples directly.",
+         call. = FALSE)
+  }
+
   z1 <- .mcmc_summary(object$posterior_model_parameter)
   z1[1, ] <- z1[1, ] * 10 * 100
   z1[2, ] <- 0.25 / exp(z1[2, ]) * 100

@@ -60,3 +60,7 @@ Tsang TK, Perera RAPM, Fang VJ, Wong JY, Shiu EY, So HC, Ip DKM, Malik
 Peiris JS, Leung GM, Cowling BJ, Cauchemez S. (2022). Reconstructing
 antibody dynamics to estimate the risk of influenza virus infection. Nat
 Commun. 2022 Mar 23;13(1):1557.
+
+## Development
+
+Code development assisted by AI tools (Claude, Anthropic).

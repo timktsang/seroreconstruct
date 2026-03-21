@@ -37,6 +37,18 @@ A \code{seroreconstruct_fit} object (when \code{group_by} is \code{NULL})
 \description{
 The main function to run the MCMC for the Bayesian model, to obtain individual dynamics, model parameters such as infection probability, boosting, waning, and measurement error.
 }
+\details{
+\strong{Multi-season support (experimental):} If \code{inputdata} contains an
+optional integer column named \code{season} (0-indexed, contiguous from 0 to
+\code{n_seasons - 1}), the model fits season-specific infection risk and HAI
+protection parameters. When no \code{season} column is present, all individuals
+are assigned to a single season (\code{n_seasons = 1}) and behavior is identical
+to previous versions.
+
+\strong{Current limitation:} \code{summary()} is not yet implemented for fits
+with \code{n_seasons > 1}. Multi-season posterior samples are accessible directly
+from the fit object (e.g., \code{fit$posterior_model_parameter}).
+}
 \examples{
 \donttest{
 a1 <- sero_reconstruct(inputdata, flu_activity,

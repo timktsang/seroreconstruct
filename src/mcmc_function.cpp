@@ -60,15 +60,17 @@ return b;
 //########################################################################################################################################
 //function to compute the prior likelihood 
 // [[Rcpp::export]]
-double prior_loglik(NumericVector para){
+double prior_loglik(NumericVector para, int n_seasons){
 // check if the para are within their possible range
 double out=1;
 int b1;
+int hai_start = 42 + 3 * n_seasons;
+int para_end = hai_start + 2 * n_seasons - 1;
 out*=sum(dunif(NumericVector::create(para(0)),0.00000001,0.9999999));
-for (b1=62;b1>=1;--b1){
+for (b1=hai_start-1;b1>=1;--b1){
 out*=sum(dunif(NumericVector::create(para(b1)),0.01,100.0));
 }
-for (b1=74;b1>=63;--b1){
+for (b1=para_end;b1>=hai_start;--b1){
 out*=sum(dnorm(NumericVector::create(para(b1)),0.0,1.0));
 }
 // if the prior is outside the parameter space
@@ -88,7 +90,8 @@ return out;
 List sim_data(NumericMatrix data1,
 NumericMatrix ILI,
 NumericVector para,
-NumericVector para2){
+NumericVector para2,
+int hai_start){
 // clone the data first
 NumericMatrix data11(clone(data1)); // record the true titer
 NumericMatrix data111(clone(data1)); // record the output with measurement error
@@ -135,8 +138,8 @@ data11(b1,8)+=R::runif(0,1);
 // 499 is the change point
 for (b2=data11(b1,3)+1;b2<=data11(b1,4);++b2){
 if (data21(b1,3)==0){ // at risk 
-double hazard1=ILI(b2-1,data111(b1,12))*para[42+data21(b1,2)+3*(b2>=499)+3*data111(b1,11)]*(data21(b1,3)==0); //*pow(3,b2>509); //+3*(b2>509)
-int inf=gen_binom(1-exp(-hazard1*exp(data11(b1,8)*para[63+2*data11(b1,11)])));
+double hazard1=ILI(b2-1,data111(b1,12))*para[42+data21(b1,2)+3*data111(b1,11)]*(data21(b1,3)==0); //*pow(3,b2>509); //+3*(b2>509)
+int inf=gen_binom(1-exp(-hazard1*exp(data11(b1,8)*para[hai_start+2*data11(b1,11)])));
 if (inf==1){
 data21(b1,3)=1;
 data21(b1,4)=b2;
@@ -253,11 +256,12 @@ int level1;
 int level2;
 int level3;
 int season;
+int hai_start;
 // destination vector
 // initialize with source and destination
 LogLik(NumericMatrix out1,
 NumericMatrix out2,
-NumericMatrix out3,	
+NumericMatrix out3,
 NumericMatrix data11,
 NumericMatrix data111,
 NumericMatrix data21,
@@ -267,8 +271,9 @@ NumericVector para2,
 int level1,
 int level2,
 int level3,
-int season) 
-:out1(out1),out2(out2),out3(out3),data11(data11),data111(data111),data21(data21),ILI(ILI),para(para),para2(para2),level1(level1),level2(level2),level3(level3),season(season){}
+int season,
+int hai_start)
+:out1(out1),out2(out2),out3(out3),data11(data11),data111(data111),data21(data21),ILI(ILI),para(para),para2(para2),level1(level1),level2(level2),level3(level3),season(season),hai_start(hai_start){}
 void operator()(std::size_t begin, std::size_t end) {
 
 // section to write the parallel version
@@ -344,10 +349,10 @@ if ((season==0)||(data11(b1,11)==season-1)){
 out3(b1,0)=0;
 out3(b1,1)=0;
 double h1;
-double hisus=exp(data11(b1,8)*para[63+2*data11(b1,11)]);
+double hisus=exp(data11(b1,8)*para[hai_start+2*data11(b1,11)]);
 for (b2=data11(b1,3)+1;b2<=data11(b1,4);++b2){
 if ((data21(b1,3)==0)||(b2<=data21(b1,4))){
-h1=hisus*ILI(b2-1,data111(b1,12))*para[42+data21(b1,2)+3*(b2>=499)+3*data111(b1,11)]*((data21(b1,3)==0)||(b2<=data21(b1,4))); //*pow(3,b2>509); //+3*(b2>509)
+h1=hisus*ILI(b2-1,data111(b1,12))*para[42+data21(b1,2)+3*data111(b1,11)]*((data21(b1,3)==0)||(b2<=data21(b1,4))); //*pow(3,b2>509); //+3*(b2>509)
 if (b2==data21(b1,4)){
 out3(b1,1)=log(1-exp(-h1));
 }
@@ -370,20 +375,21 @@ out3(b1,0)-=h1;
 List loglik(NumericMatrix data11,
 NumericMatrix data111,
 NumericMatrix data21,
-NumericMatrix ILI,	
+NumericMatrix ILI,
 NumericVector para,
 NumericVector para2,
 int level1,
 int level2,
 int level3,
 int season,
-NumericMatrix blankmatrix){
+NumericMatrix blankmatrix,
+int hai_start){
 // check if the para are within their possible range
 NumericMatrix out1(data11.nrow(),3);
 NumericMatrix out2(data11.nrow(),3);
 NumericMatrix out3=clone(blankmatrix);
 // call parallel program
-LogLik loglik(out1,out2,out3,data11,data111,data21,ILI,para,para2,level1,level2,level3,season);
+LogLik loglik(out1,out2,out3,data11,data111,data21,ILI,para,para2,level1,level2,level3,season,hai_start);
 // call parallelFor to do the work
 parallelFor(0,data11.nrow(),loglik);
 
@@ -423,6 +429,7 @@ RMatrix<double> loglik1;
 RMatrix<double> loglik2;
 RMatrix<double> loglik3;
 RMatrix<double> temprecord;
+int hai_start;
 // destination vector
 // initialize with source and destination
 AllUpdate(NumericMatrix data11out,
@@ -445,8 +452,9 @@ NumericVector para2,
 NumericMatrix loglik1,
 NumericMatrix loglik2,
 NumericMatrix loglik3,
-NumericMatrix temprecord) 
-:data11out(data11out),data21out(data21out),data11pro(data11pro),data21pro(data21pro),loglik1out(loglik1out),loglik2out(loglik2out),loglik3out(loglik3out),loglik1pro(loglik1pro),loglik2pro(loglik2pro),loglik3pro(loglik3pro),mcmcrecord(mcmcrecord),data11(data11),data111(data111),data21(data21),ILI(ILI),para(para),para2(para2),loglik1(loglik1),loglik2(loglik2),loglik3(loglik3),temprecord(temprecord){}
+NumericMatrix temprecord,
+int hai_start)
+:data11out(data11out),data21out(data21out),data11pro(data11pro),data21pro(data21pro),loglik1out(loglik1out),loglik2out(loglik2out),loglik3out(loglik3out),loglik1pro(loglik1pro),loglik2pro(loglik2pro),loglik3pro(loglik3pro),mcmcrecord(mcmcrecord),data11(data11),data111(data111),data21(data21),ILI(ILI),para(para),para2(para2),loglik1(loglik1),loglik2(loglik2),loglik3(loglik3),temprecord(temprecord),hai_start(hai_start){}
 
 void operator()(std::size_t begin, std::size_t end) {
 
@@ -625,10 +633,10 @@ loglik1pro(b1,b2)=log(probtemp[int(data111(b1,8+b2))])-log(probtemptotal);
 loglik3pro(b1,0)=0;
 loglik3pro(b1,1)=0;
 double h1;
-double hisus=exp(data11pro(b1,8)*para[63+2*data11(b1,11)]);
+double hisus=exp(data11pro(b1,8)*para[hai_start+2*data11(b1,11)]);
 for (b2=data11pro(b1,3)+1;b2<=data11pro(b1,4);++b2){
 if ((data21pro(b1,3)==0)||(b2<=data21pro(b1,4))){
-h1=hisus*ILI(b2-1,data111(b1,12))*para[42+data21pro(b1,2)+3*(b2>=499)+3*data111(b1,11)]*((data21pro(b1,3)==0)||(b2<=data21pro(b1,4))); //*pow(3,b2>509); //+3*(b2>509)
+h1=hisus*ILI(b2-1,data111(b1,12))*para[42+data21pro(b1,2)+3*data111(b1,11)]*((data21pro(b1,3)==0)||(b2<=data21pro(b1,4))); //*pow(3,b2>509); //+3*(b2>509)
 if (b2==data21pro(b1,4)){
 loglik3pro(b1,1)=log(1-exp(-h1));
 }
@@ -709,12 +717,13 @@ loglik2out(b1,1)=0;
 List all_update(NumericMatrix data11,
 NumericMatrix data111,
 NumericMatrix data21,
-NumericMatrix ILI,	
+NumericMatrix ILI,
 NumericVector para,
 NumericVector para2,
 NumericMatrix loglik1,
 NumericMatrix loglik2,
-NumericMatrix loglik3){
+NumericMatrix loglik3,
+int hai_start){
 
 NumericMatrix data11pro(clone(data11));
 NumericMatrix data21pro(clone(data21));
@@ -742,7 +751,7 @@ data21pro(b1,6)=R::rgamma(para[19+4*(data11(b1,13))+2*(data11(b1,2)>0)],1.0);
 }
 
 // call parallel program
-AllUpdate allupdate(data11out,data21out,data11pro,data21pro,loglik1out,loglik2out,loglik3out,loglik1pro,loglik2pro,loglik3pro,mcmcrecord,data11,data111,data21,ILI,para,para2,loglik1,loglik2,loglik3,temprecord);
+AllUpdate allupdate(data11out,data21out,data11pro,data21pro,loglik1out,loglik2out,loglik3out,loglik1pro,loglik2pro,loglik3pro,mcmcrecord,data11,data111,data21,ILI,para,para2,loglik1,loglik2,loglik3,temprecord,hai_start);
 // call parallelFor to do the work
 parallelFor(0,data21.nrow(),allupdate);
 
@@ -782,12 +791,13 @@ _[""]=temprecord);
 List add_remove_infection(NumericMatrix data11,
 NumericMatrix data111,
 NumericMatrix data21,
-NumericMatrix ILI,	
+NumericMatrix ILI,
 NumericVector para,
 NumericVector para2,
 NumericMatrix loglik1,
 NumericMatrix loglik2,
-NumericMatrix loglik3){
+NumericMatrix loglik3,
+int hai_start){
 
 NumericMatrix data11pro(clone(data11));
 NumericMatrix data21pro(clone(data21));
@@ -964,18 +974,18 @@ loglik1pro(b1,b2)=log(probtemp[int(data111(b1,8+b2))])-log(probtemptotal);
 loglik3pro(b1,0)=0;
 loglik3pro(b1,1)=0;
 double h1;
-double hisus=exp(data11pro(b1,8)*para[63+2*data11(b1,11)]);
+double hisus=exp(data11pro(b1,8)*para[hai_start+2*data11(b1,11)]);
 
 for (b2=data11pro(b1,3)+1;b2<=data11pro(b1,4);++b2){
 if ((data21pro(b1,3)==0)||(b2<=data21pro(b1,4))){
-h1=hisus*ILI(b2-1,data111(b1,12))*para[42+data11pro(b1,2)+3*(b2>=499)+3*data111(b1,11)]*((data21pro(b1,3)==0)||(b2<=data21pro(b1,4))); //*pow(3,b2>509); //+3*(b2>509)
+h1=hisus*ILI(b2-1,data111(b1,12))*para[42+data11pro(b1,2)+3*data111(b1,11)]*((data21pro(b1,3)==0)||(b2<=data21pro(b1,4))); //*pow(3,b2>509); //+3*(b2>509)
 if (b2==data21pro(b1,4)){
 loglik3pro(b1,1)=log(1-exp(-h1));
 }
 else{
 loglik3pro(b1,0)-=h1;
 }
-}	
+}
 }
 
 // here do the metropolis hasting update
@@ -983,12 +993,12 @@ double liknew=0;
 double likold=0;
 for (b2=2;b2>=0;--b2){
 liknew+=loglik1pro(b1,b2);
-likold+=loglik1(b1,b2);	
+likold+=loglik1(b1,b2);
 }
 // don't add level 2
 for (b2=1;b2>=0;--b2){
 liknew+=loglik3pro(b1,b2);
-likold+=loglik3(b1,b2);	
+likold+=loglik3(b1,b2);
 }
 
 
@@ -1165,7 +1175,7 @@ loglik1pro(b1,b2)=log(probtemp[int(data111(b1,8+b2))])-log(probtemptotal);
 }
 }
 
-// second level 
+// second level
 // in this update nothing from level 2 need to be added
 // because they are all using gibbs sampler
 
@@ -1173,18 +1183,18 @@ loglik1pro(b1,b2)=log(probtemp[int(data111(b1,8+b2))])-log(probtemptotal);
 loglik3pro(b1,0)=0;
 loglik3pro(b1,1)=0;
 double h1;
-double hisus=exp(data11pro(b1,8)*para[63+2*data11(b1,11)]);
+double hisus=exp(data11pro(b1,8)*para[hai_start+2*data11(b1,11)]);
 
 for (b2=data11pro(b1,3)+1;b2<=data11pro(b1,4);++b2){
 if ((data21pro(b1,3)==0)||(b2<=data21pro(b1,4))){
-h1=hisus*ILI(b2-1,data111(b1,12))*para[42+data11pro(b1,2)+3*(b2>=499)+3*data111(b1,11)]*((data21pro(b1,3)==0)||(b2<=data21pro(b1,4))); //*pow(3,b2>509); //+3*(b2>509)
+h1=hisus*ILI(b2-1,data111(b1,12))*para[42+data11pro(b1,2)+3*data111(b1,11)]*((data21pro(b1,3)==0)||(b2<=data21pro(b1,4))); //*pow(3,b2>509); //+3*(b2>509)
 if (b2==data21pro(b1,4)){
 loglik3pro(b1,1)=log(1-exp(-h1));
 }
 else{
 loglik3pro(b1,0)-=h1;
 }
-}	
+}
 }
 
 // here do the metropolis hasting update
@@ -1192,12 +1202,12 @@ double liknew=0;
 double likold=0;
 for (b2=2;b2>=0;--b2){
 liknew+=loglik1pro(b1,b2);
-likold+=loglik1(b1,b2);	
+likold+=loglik1(b1,b2);
 }
 // don't add level 2
 for (b2=1;b2>=0;--b2){
 liknew+=loglik3pro(b1,b2);
-likold+=loglik3(b1,b2);	
+likold+=loglik3(b1,b2);
 }
 
 double loglikratio=liknew-likold;
@@ -1284,7 +1294,7 @@ _[""]=numberofall);
 List mcmc(NumericMatrix input1,
 NumericMatrix input2,
 NumericMatrix input3,
-NumericMatrix ILI,	
+NumericMatrix ILI,
 int mcmc_n,             // length of mcmc stain
 NumericVector int_para, // initial parameter
 NumericVector int_para2,
@@ -1294,7 +1304,11 @@ NumericVector move,     // which one should move in the model
 NumericVector sigma,
 NumericVector sigma3,
 int burnin,
-int thinning){            
+int thinning,
+int n_seasons){
+
+// compute hai_start once
+int hai_start = 42 + 3 * n_seasons;
 
 // create the vector for use
 int b0;
@@ -1410,7 +1424,7 @@ NumericMatrix impute_record_boosting1(rownumber,data11.nrow());
 
 NumericMatrix blankmatrix(data11.nrow(),2);
 
-List loglikall=loglik(data11,data111,data21,ILI,p_para(0,_),p_para2(0,_),1,1,1,0,blankmatrix);
+List loglikall=loglik(data11,data111,data21,ILI,p_para(0,_),p_para2(0,_),1,1,1,0,blankmatrix,hai_start);
 List loglikallpro;
 NumericMatrix loglik1=loglikall(0);
 NumericMatrix loglik2=loglikall(1);
@@ -1426,7 +1440,7 @@ LL1(0,0)=LL1(0,1)+LL1(0,2)+LL1(0,3);
 
 NumericVector temploglik(4);
 NumericVector newloglik(4);
-temploglik(0)=LL1(0,0)+prior_loglik(p_para(0,_));
+temploglik(0)=LL1(0,0)+prior_loglik(p_para(0,_),n_seasons);
 temploglik(1)=LL1(0,1);
 temploglik(2)=LL1(0,2);
 temploglik(3)=LL1(0,3);
@@ -1532,11 +1546,11 @@ for (b2=b1-1;b2>=0;--b2){
 pro_para(b2)=p_para(b0,b2);	
 }
 pro_para(b1)+=rnorm(0.0,sigma(b1));
-newloglik(0)=prior_loglik(pro_para);
+newloglik(0)=prior_loglik(pro_para,n_seasons);
 if (newloglik(0)> -9999999){
 // level 3 
 if (level==3){
-loglikallpro=loglik(data11,data111,data21,ILI,pro_para,p_para2(b0-1,_),0,0,1,paraseason(b1),loglik3);
+loglikallpro=loglik(data11,data111,data21,ILI,pro_para,p_para2(b0-1,_),0,0,1,paraseason(b1),loglik3,hai_start);
 NumericMatrix tempoutput=loglikallpro(2);
 loglik3pro=clone(tempoutput);
 newloglik(1)=temploglik(1);
@@ -1544,7 +1558,7 @@ newloglik(2)=temploglik(2);
 newloglik(3)=sum(loglik3pro);
 }
 if (level==1){ // level1
-loglikallpro=loglik(data11,data111,data21,ILI,pro_para,p_para2(b0-1,_),1,0,0,0,loglik3);
+loglikallpro=loglik(data11,data111,data21,ILI,pro_para,p_para2(b0-1,_),1,0,0,0,loglik3,hai_start);
 NumericMatrix tempoutput=loglikallpro(0);
 loglik1pro=clone(tempoutput);
 newloglik(1)=sum(loglik1pro);
@@ -1552,7 +1566,7 @@ newloglik(2)=temploglik(2);
 newloglik(3)=temploglik(3);
 }
 if (level==2){  //level2
-loglikallpro=loglik(data11,data111,data21,ILI,pro_para,p_para2(b0-1,_),0,1,0,0,loglik3);
+loglikallpro=loglik(data11,data111,data21,ILI,pro_para,p_para2(b0-1,_),0,1,0,0,loglik3,hai_start);
 NumericMatrix tempoutput=loglikallpro(1);
 loglik2pro=clone(tempoutput);
 newloglik(1)=temploglik(1);
@@ -1607,7 +1621,7 @@ p_para(b0,b1)=p_para(b0-1,b1);
 }
 }
 
-LL1(b0,0)=temploglik(0)-prior_loglik(p_para(b0,_));
+LL1(b0,0)=temploglik(0)-prior_loglik(p_para(b0,_),n_seasons);
 LL1(b0,1)=temploglik(1);
 LL1(b0,2)=temploglik(2);
 LL1(b0,3)=temploglik(3);
@@ -1638,7 +1652,7 @@ p_para2(b0,b1)/=tempcount(b1/10);
 }
 
 // here need to update the likelihood
-loglikallpro=loglik(data11,data111,data21,ILI,p_para(b0,_),p_para2(b0,_),0,1,0,0,loglik3);
+loglikallpro=loglik(data11,data111,data21,ILI,p_para(b0,_),p_para2(b0,_),0,1,0,0,loglik3,hai_start);
 NumericMatrix tempoutput=loglikallpro(1);
 loglik2pro=clone(tempoutput);
 temploglik(2)=sum(loglik2pro);
@@ -1688,7 +1702,7 @@ acceptrate3(b1)/=b0;
 
 
 // update the boosting waning parameter without changing infection status
-List allupdate=all_update(data11,data111,data21,ILI,p_para(b0,_),p_para2(b0,_),loglik1,loglik2,loglik3);
+List allupdate=all_update(data11,data111,data21,ILI,p_para(b0,_),p_para2(b0,_),loglik1,loglik2,loglik3,hai_start);
 NumericMatrix tempoutput1=allupdate(0);
 data11=clone(tempoutput1);
 NumericMatrix tempoutput2=allupdate(1);
@@ -1707,7 +1721,7 @@ LL3(b0,2)=sum(loglik2);
 LL3(b0,3)=sum(loglik3);
 LL3(b0,0)=LL3(b0,1)+LL3(b0,2)+LL3(b0,3);
 
-temploglik(0)=LL3(b0,0)+prior_loglik(p_para(b0,_));
+temploglik(0)=LL3(b0,0)+prior_loglik(p_para(b0,_),n_seasons);
 temploglik(1)=LL3(b0,1);
 temploglik(2)=LL3(b0,2);
 temploglik(3)=LL3(b0,3);
@@ -1716,7 +1730,7 @@ temploglik(3)=LL3(b0,3);
 
 // add/remove infection step
 for (b1=18;b1>=0;--b1){
-List addremoveinfection=add_remove_infection(data11,data111,data21,ILI,p_para(b0,_),p_para2(b0,_),loglik1,loglik2,loglik3);
+List addremoveinfection=add_remove_infection(data11,data111,data21,ILI,p_para(b0,_),p_para2(b0,_),loglik1,loglik2,loglik3,hai_start);
 NumericMatrix tempoutput11=addremoveinfection(0);
 data11=clone(tempoutput11);
 NumericMatrix tempoutput12=addremoveinfection(1);
@@ -1729,7 +1743,7 @@ NumericMatrix tempoutput15=addremoveinfection(4);
 loglik3=clone(tempoutput15);
 }
 
-List addremoveinfection=add_remove_infection(data11,data111,data21,ILI,p_para(b0,_),p_para2(b0,_),loglik1,loglik2,loglik3);
+List addremoveinfection=add_remove_infection(data11,data111,data21,ILI,p_para(b0,_),p_para2(b0,_),loglik1,loglik2,loglik3,hai_start);
 NumericMatrix tempoutput11=addremoveinfection(0);
 data11=clone(tempoutput11);
 NumericMatrix tempoutput12=addremoveinfection(1);
@@ -1750,7 +1764,7 @@ LL4(b0,2)=sum(loglik2);
 LL4(b0,3)=sum(loglik3);
 LL4(b0,0)=LL4(b0,1)+LL4(b0,2)+LL4(b0,3);
 
-temploglik(0)=LL4(b0,0)+prior_loglik(p_para(b0,_));
+temploglik(0)=LL4(b0,0)+prior_loglik(p_para(b0,_),n_seasons);
 temploglik(1)=LL4(b0,1);
 temploglik(2)=LL4(b0,2);
 temploglik(3)=LL4(b0,3);

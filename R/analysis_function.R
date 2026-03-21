@@ -10,6 +10,18 @@
 #'   When provided, independent MCMCs are fit for each combination of the grouping
 #'   variables. The formula uses interaction semantics: \code{~age + vac} means all
 #'   age-by-vac combinations. Returns a \code{seroreconstruct_multi} object.
+#' @details
+#' \strong{Multi-season support (experimental):} If \code{inputdata} contains an
+#' optional integer column named \code{season} (0-indexed, contiguous from 0 to
+#' \code{n_seasons - 1}), the model fits season-specific infection risk and HAI
+#' protection parameters. When no \code{season} column is present, all individuals
+#' are assigned to a single season (\code{n_seasons = 1}) and behavior is identical
+#' to previous versions.
+#'
+#' \strong{Current limitation:} \code{summary()} is not yet implemented for fits
+#' with \code{n_seasons > 1}. Multi-season posterior samples are accessible directly
+#' from the fit object (e.g., \code{fit$posterior_model_parameter}).
+#'
 #' @return A \code{seroreconstruct_fit} object (when \code{group_by} is \code{NULL})
 #'   or a \code{seroreconstruct_multi} object (when \code{group_by} is provided).
 #'   Use \code{summary()} to extract model estimates.
@@ -142,23 +154,36 @@ simulate_data <- function(inputdata, inputILI, para1, para2) {
   if (!is.data.frame(inputdata)) {
     stop("'inputdata' must be a data frame.", call. = FALSE)
   }
-  .validate_simulation_params(para1, para2)
 
   prepared <- .prepare_inputs(inputdata, inputILI)
-  inputdata <- prepared$inputdata
-  inputILI <- prepared$inputILI
+  inputdata_mat <- prepared$inputdata
+  inputILI_mat <- prepared$inputILI
 
+  # Determine n_seasons from the season column (col 12 in R 1-indexed, 0-indexed values)
+  n_seasons <- as.integer(max(inputdata_mat[, 12]) + 1L)
+  hai_start_c <- 42L + 3L * n_seasons
+  n_para <- 42L + 5L * n_seasons
+
+  .validate_simulation_params(para1, para2, n_seasons)
+
+  # Build full parameter vector and insert user params at active positions
   int_para <- c(0.005, rep(0.6, 17), rep(c(3.5, 0.5), 12),
-                rep(c(0.4, 0.2, 0.2), 7), rep(-0.1, 12))
-  int_para[64:65] <- 0
-  move <- rep(1, length(int_para))
-  move[c(4:18, 35:42, 64:65, 67, 69, 71, 73, 75)] <- 0
-  move[c(3, 19:26, 31:51, 55:67, 69:75)] <- 0
+                rep(c(0.4, 0.2, 0.2), n_seasons),
+                rep(-0.1, 2L * n_seasons))
+
+  move <- rep(0L, n_para)
+  move[1] <- 1L
+  move[2] <- 1L
+  move[27:30] <- 1L
+  move[43:(42L + 3L * n_seasons)] <- 1L
+  for (s in seq_len(n_seasons)) {
+    move[42L + 3L * n_seasons + 2L * (s - 1L) + 1L] <- 1L
+  }
   int_para[which(move == 1)] <- para1
 
   int_para2 <- para2
 
-  t <- sim_data(inputdata, inputILI, int_para, int_para2)
+  t <- sim_data(inputdata_mat, inputILI_mat, int_para, int_para2, hai_start_c)
 
   return(data.frame(t[[2]][, 2 + 1:9]))
 }

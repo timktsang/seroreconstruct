@@ -4,12 +4,14 @@
 \alias{.validate_simulation_params}
 \title{Validate simulation parameters}
 \usage{
-.validate_simulation_params(para1, para2)
+.validate_simulation_params(para1, para2, n_seasons = 1L)
 }
 \arguments{
-\item{para1}{Numeric vector of length 10.}
+\item{para1}{Numeric vector of active model parameters (length \code{6 + 4 * n_seasons}).}
 
-\item{para2}{Numeric vector of length 20.}
+\item{para2}{Numeric vector of baseline HAI titer distribution (length \code{20 * n_seasons}).}
+
+\item{n_seasons}{Number of seasons. Default 1.}
 }
 \description{
 Validate simulation parameters
