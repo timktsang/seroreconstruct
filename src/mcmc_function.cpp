@@ -97,22 +97,19 @@ NumericMatrix data11(clone(data1)); // record the true titer
 NumericMatrix data111(clone(data1)); // record the output with measurement error
 // the augmented data to store information
 NumericMatrix data21(data11.nrow(),10);
-NumericMatrix record(data11.nrow(),30);
-NumericMatrix record2(1,1);
 // 1-3 hhID, member, age
-// 4, infection or not 
+// 4, infection or not
 // 5, infection time
 // 6, boosting
-// 7 waning rate 
+// 7 waning rate
 
 int b1;
 int b2;
 int b3;
-//int b4;
 
 for (b1=data11.nrow()-1;b1>=0;--b1){
 // first impute the basic information here
-data21(b1,0)=data11(b1,0);	
+data21(b1,0)=data11(b1,0);
 data21(b1,1)=data11(b1,1);
 data21(b1,2)=data11(b1,2);
 // boosting, cross-boosting and waning parameter
@@ -229,10 +226,8 @@ data111(b1,8)=-1;
 
 
 return List::create(_[""]=data11,
-_[""]=data111,	
-_[""]=data21,
-_[""]=record,
-_[""]=record2);
+_[""]=data111,
+_[""]=data21);
 } 
 
 
