@@ -364,6 +364,17 @@ summary.seroreconstruct_joint <- function(object, period, ...) {
   group_labels <- attr(object, "group_labels")
   shared <- attr(object, "shared")
 
+  # Only the fully-shared mode is currently supported for summary output.
+  # shared = "error" alone produces group-specific boosting/waning parameters
+  # that require a different summary layout.
+  if (!all(c("error", "boosting_waning") %in% shared)) {
+    stop("summary() for joint fits is currently only supported when ",
+         "shared = c(\"error\", \"boosting_waning\"). ",
+         "For partial sharing (shared = \"error\"), use table_parameters() ",
+         "to inspect all model parameters, or access the raw posterior via ",
+         "fit$posterior_model_parameter.", call. = FALSE)
+  }
+
   z1 <- .mcmc_summary(object$posterior_model_parameter)
   z1[1, ] <- z1[1, ] * 10 * 100
   z1[2, ] <- 0.25 / exp(z1[2, ]) * 100

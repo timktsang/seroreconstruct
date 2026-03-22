@@ -11,7 +11,8 @@ sero_reconstruct(
   burnin = 1000,
   thinning = 1,
   group_by = NULL,
-  shared = NULL
+  shared = NULL,
+  subject_ids = NULL
 )
 }
 \arguments{
@@ -29,6 +30,11 @@ sero_reconstruct(
 When provided, independent MCMCs are fit for each combination of the grouping
 variables. The formula uses interaction semantics: \code{~age + vac} means all
 age-by-vac combinations. Returns a \code{seroreconstruct_multi} object.}
+
+\item{subject_ids}{Optional vector (character, numeric, or factor) of subject
+identifiers, one per row of \code{inputdata}. When provided, stored in the
+fit object and used by \code{plot_trajectory()} to look up individuals by
+ID rather than row index. Example: \code{subject_ids = inputdata$household_id}.}
 
 \item{shared}{Optional character vector specifying which parameters to share across
 groups when \code{group_by} is also provided. Valid values: \code{"error"}

@@ -134,4 +134,4 @@ Commun. 2022 Mar 23;13(1):1557.
 
 ## Development
 
-Code development assisted by AI tools (Claude, Anthropic).
+Code development assisted by AI tools (Claude, Anthropic; Codex, OpenAI).

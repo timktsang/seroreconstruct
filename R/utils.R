@@ -280,7 +280,8 @@
     posterior_boosting = tt[[16]],
     posterior_baseline_titer = tt[[17]],
     data = inputdata,
-    ILI_data = inputILI
+    ILI_data = inputILI,
+    subject_ids = NULL  # populated by sero_reconstruct() if subject_ids arg provided
   )
 
   message("MCMC complete in ", round(runtime), " seconds. Use summary() to view estimates.")

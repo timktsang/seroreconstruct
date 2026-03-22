@@ -10,6 +10,10 @@
 #'   When provided, independent MCMCs are fit for each combination of the grouping
 #'   variables. The formula uses interaction semantics: \code{~age + vac} means all
 #'   age-by-vac combinations. Returns a \code{seroreconstruct_multi} object.
+#' @param subject_ids Optional vector (character, numeric, or factor) of subject
+#'   identifiers, one per row of \code{inputdata}. When provided, stored in the
+#'   fit object and used by \code{plot_trajectory()} to look up individuals by
+#'   ID rather than row index. Example: \code{subject_ids = inputdata$household_id}.
 #' @param shared Optional character vector specifying which parameters to share across
 #'   groups when \code{group_by} is also provided. Valid values: \code{"error"}
 #'   (measurement error), \code{"boosting_waning"} (antibody boosting and waning).
@@ -50,8 +54,20 @@
 #' }
 #' @export
 sero_reconstruct <- function(inputdata, inputILI, n_iteration = 2000, burnin = 1000,
-                              thinning = 1, group_by = NULL, shared = NULL) {
+                              thinning = 1, group_by = NULL, shared = NULL,
+                              subject_ids = NULL) {
   inputdata <- .validate_inputs(inputdata, inputILI, n_iteration, burnin, thinning, group_by)
+
+  if (!is.null(subject_ids)) {
+    if (length(subject_ids) != nrow(inputdata)) {
+      stop("'subject_ids' must have the same length as the number of rows in 'inputdata' (",
+           nrow(inputdata), "), got ", length(subject_ids), ".", call. = FALSE)
+    }
+    if (anyDuplicated(subject_ids)) {
+      warning("'subject_ids' contains duplicate values. ",
+              "plot_trajectory() will return the first matching row.", call. = FALSE)
+    }
+  }
 
   # --- Joint model path: shared parameters across groups ---
   if (!is.null(group_by) && !is.null(shared)) {
@@ -107,7 +123,9 @@ sero_reconstruct <- function(inputdata, inputILI, n_iteration = 2000, burnin = 1
     fit <- .fit_single(inputdata, inputILI, n_iteration, burnin, thinning,
                        n_groups = n_groups)
 
-    return(.new_seroreconstruct_joint(fit, group_labels, group_sizes, shared, n_groups))
+    joint <- .new_seroreconstruct_joint(fit, group_labels, group_sizes, shared, n_groups)
+    joint$subject_ids <- subject_ids
+    return(joint)
   }
 
   # --- Independent chains path (existing behavior) ---
@@ -158,10 +176,14 @@ sero_reconstruct <- function(inputdata, inputILI, n_iteration = 2000, burnin = 1
                                thinning, n_groups = 1L)
     }
 
-    return(.new_seroreconstruct_multi(fits, group_labels, group_sizes))
+    multi <- .new_seroreconstruct_multi(fits, group_labels, group_sizes)
+    multi$subject_ids <- subject_ids
+    return(multi)
   }
 
-  .fit_single(inputdata, inputILI, n_iteration, burnin, thinning, n_groups = 3L)
+  fit <- .fit_single(inputdata, inputILI, n_iteration, burnin, thinning, n_groups = 3L)
+  fit$subject_ids <- subject_ids
+  fit
 }
 
 #################################################
