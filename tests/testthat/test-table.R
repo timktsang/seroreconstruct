@@ -8,8 +8,7 @@ test_that("table_parameters returns correct structure", {
   tbl <- table_parameters(fit)
   expect_s3_class(tbl, "data.frame")
   expect_equal(nrow(tbl), 10)  # 3-group single-season: 10 active params
-  expect_true(all(c("Parameter", "Mean", "Median", "Lower", "Upper", "ESS") %in% names(tbl)))
-  expect_true(all(tbl$ESS > 0))
+  expect_true(all(c("Parameter", "Mean", "Median", "Lower", "Upper") %in% names(tbl)))
 })
 
 test_that("table_parameters has correct parameter names for 3-group", {

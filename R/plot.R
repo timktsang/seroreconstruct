@@ -177,7 +177,7 @@ plot_trajectory <- function(fit, id = 1, subjects = NULL, n_samples = 100,
   if (is.null(col_uninfected)) col_uninfected <- grDevices::rgb(0, 0, 1, 0.15)
 
   # ---- Plot setup ----
-  x_max <- end_t - time1
+  x_max <- max(end_t - time1, obs_x, na.rm = TRUE)
   # Y range: use 95th percentile of trajectory peaks (not max)
   peak_titers <- ifelse(inf_status == 1, bl_vec + bo_vec, bl_vec)
   y_max_est <- max(c(obs_y, stats::quantile(peak_titers, 0.95)), na.rm = TRUE)
@@ -268,6 +268,212 @@ plot_trajectory <- function(fit, id = 1, subjects = NULL, n_samples = 100,
                                 "Trajectories without infection"),
                      col = c("black", "red", "blue"),
                      lty = c(NA, 1, 1), pch = c(16, NA, NA),
+                     bty = "n", cex = 0.9)
+  }
+
+  invisible(NULL)
+}
+
+#' Plot posterior boosting distributions
+#'
+#' Draws violin plots of the posterior fold-rise in antibody titer after
+#' infection, one violin per boosting parameter group. Matches the style of
+#' Figure 1C in Tsang et al. (2022).
+#'
+#' @param fit A \code{seroreconstruct_fit} or \code{seroreconstruct_joint}
+#'   object. Only single-season fits are currently supported.
+#' @param cols Optional character vector of colors, one per group.
+#' @param main Optional plot title.
+#' @param show_legend Logical; whether to draw a legend. Default \code{TRUE}.
+#' @param ... Additional graphical parameters passed to \code{plot()}.
+#' @return Invisible \code{NULL}. Called for its side effect of producing a plot.
+#' @examples
+#' \donttest{
+#' fit <- sero_reconstruct(inputdata, flu_activity,
+#'                         n_iteration = 2000, burnin = 1000, thinning = 1)
+#' plot_boosting(fit)
+#' }
+#' @export
+plot_boosting <- function(fit, cols = NULL, main = NULL,
+                          show_legend = TRUE, ...) {
+  if (inherits(fit, "seroreconstruct_multi")) {
+    stop("plot_boosting() is not supported for seroreconstruct_multi objects. ",
+         "Use it on individual group fits via fit[[\"group_name\"]].", call. = FALSE)
+  }
+
+  n_seasons <- attr(fit, "n_seasons")
+  if (!is.null(n_seasons) && n_seasons > 1L) {
+    stop("plot_boosting() is currently only supported for single-season fits.",
+         call. = FALSE)
+  }
+
+  param_names <- .get_param_names(fit)
+  boost_idx <- grep("^boosting", param_names)
+
+  if (length(boost_idx) == 0L) {
+    stop("No boosting parameters found in the fit.", call. = FALSE)
+  }
+
+  post <- fit$posterior_model_parameter
+
+  # Convert from log2 scale to fold-rise
+  boost_list <- lapply(boost_idx, function(i) 2^post[, i])
+  labels <- sub("^boosting_", "", param_names[boost_idx])
+  labels <- paste0(toupper(substr(labels, 1, 1)),
+                   substr(labels, 2, nchar(labels)))
+  names(boost_list) <- labels
+  n_violins <- length(boost_list)
+
+  if (is.null(cols)) {
+    cols <- if (n_violins == 1L) "steelblue"
+            else if (n_violins == 2L) c("salmon", "steelblue")
+            else grDevices::hcl.colors(n_violins, "Set2")
+  }
+  if (length(cols) < n_violins) cols <- rep_len(cols, n_violins)
+
+  if (is.null(main)) main <- "Fold rise in antibody titer"
+
+  y_max <- max(vapply(boost_list,
+                      function(x) stats::quantile(x, 0.995),
+                      numeric(1)))
+
+  old_mar <- graphics::par("mar")
+  on.exit(graphics::par(mar = old_mar))
+  graphics::par(mar = c(4, 4, 3, 1))
+
+  graphics::plot(NA, xlim = c(0.5, n_violins + 0.5),
+                 ylim = c(0, y_max * 1.1),
+                 xlab = "", ylab = "Fold rise in antibody titer",
+                 axes = FALSE, main = main, ...)
+  graphics::axis(1, at = seq_len(n_violins), labels = labels)
+  graphics::axis(2, las = 1)
+
+  for (i in seq_len(n_violins)) {
+    d <- stats::density(boost_list[[i]])
+    max_d <- max(d$y)
+    scaled <- d$y / max_d * 0.35
+
+    # Mirrored density (violin)
+    graphics::polygon(c(i - scaled, rev(i + scaled)),
+                      c(d$x, rev(d$x)),
+                      col = grDevices::adjustcolor(cols[i], alpha.f = 0.3),
+                      border = cols[i])
+
+    # Median crossbar and 95% CI
+    vals <- boost_list[[i]]
+    med <- stats::median(vals)
+    ci <- stats::quantile(vals, c(0.025, 0.975))
+    graphics::segments(i - 0.15, med, i + 0.15, med, lwd = 2, col = cols[i])
+    graphics::segments(i, ci[1], i, ci[2], lwd = 1.5, col = cols[i])
+    graphics::segments(i - 0.06, ci[1], i + 0.06, ci[1],
+                       lwd = 1.5, col = cols[i])
+    graphics::segments(i - 0.06, ci[2], i + 0.06, ci[2],
+                       lwd = 1.5, col = cols[i])
+  }
+
+  invisible(NULL)
+}
+
+#' Plot posterior waning curves
+#'
+#' Shows the fraction of peak antibody remaining over time since infection,
+#' with posterior median and 95\% credible band for each waning parameter
+#' group. Matches the style of Figure 1D in Tsang et al. (2022).
+#'
+#' @param fit A \code{seroreconstruct_fit} or \code{seroreconstruct_joint}
+#'   object. Only single-season fits are currently supported.
+#' @param days Maximum number of days to plot on the x-axis. Default 400.
+#' @param cols Optional character vector of colors, one per group.
+#' @param main Optional plot title.
+#' @param show_legend Logical; whether to draw a legend. Default \code{TRUE}.
+#' @param ... Additional graphical parameters passed to \code{plot()}.
+#' @return Invisible \code{NULL}. Called for its side effect of producing a plot.
+#' @examples
+#' \donttest{
+#' fit <- sero_reconstruct(inputdata, flu_activity,
+#'                         n_iteration = 2000, burnin = 1000, thinning = 1)
+#' plot_waning(fit)
+#' }
+#' @export
+plot_waning <- function(fit, days = 400, cols = NULL, main = NULL,
+                        show_legend = TRUE, ...) {
+  if (inherits(fit, "seroreconstruct_multi")) {
+    stop("plot_waning() is not supported for seroreconstruct_multi objects. ",
+         "Use it on individual group fits via fit[[\"group_name\"]].", call. = FALSE)
+  }
+
+  n_seasons <- attr(fit, "n_seasons")
+  if (!is.null(n_seasons) && n_seasons > 1L) {
+    stop("plot_waning() is currently only supported for single-season fits.",
+         call. = FALSE)
+  }
+
+  param_names <- .get_param_names(fit)
+  wane_idx <- grep("^waning", param_names)
+
+  if (length(wane_idx) == 0L) {
+    stop("No waning parameters found in the fit.", call. = FALSE)
+  }
+
+  post <- fit$posterior_model_parameter
+  labels <- sub("^waning_", "", param_names[wane_idx])
+  labels <- paste0(toupper(substr(labels, 1, 1)),
+                   substr(labels, 2, nchar(labels)))
+  n_curves <- length(wane_idx)
+
+  if (is.null(cols)) {
+    cols <- if (n_curves == 1L) "steelblue"
+            else if (n_curves == 2L) c("salmon", "steelblue")
+            else grDevices::hcl.colors(n_curves, "Set2")
+  }
+  if (length(cols) < n_curves) cols <- rep_len(cols, n_curves)
+
+  if (is.null(main)) main <- "Antibody waning"
+
+  t_grid <- seq(0, days, length.out = 200)
+
+  # Compute waning curves for each group
+  curve_data <- vector("list", n_curves)
+  for (i in seq_along(wane_idx)) {
+    w <- post[, wane_idx[i]]  # log2 scale: fold-decrease/year = 2^w
+    # fraction remaining = 2^(-w * t / 365) * 100
+    curves <- outer(w, t_grid, function(w, t) 2^(-w * t / 365) * 100)
+    curve_data[[i]] <- list(
+      median = apply(curves, 2, stats::median),
+      lower  = apply(curves, 2, stats::quantile, 0.025),
+      upper  = apply(curves, 2, stats::quantile, 0.975)
+    )
+  }
+
+  y_min <- min(vapply(curve_data, function(cd) min(cd$lower), numeric(1)))
+  y_min <- max(floor(y_min / 10) * 10, 0)
+
+  old_mar <- graphics::par("mar")
+  on.exit(graphics::par(mar = old_mar))
+  graphics::par(mar = c(4, 4, 3, 1))
+
+  graphics::plot(NA, xlim = c(0, days), ylim = c(y_min, 100),
+                 xlab = "Days since boosting",
+                 ylab = "Antibody remaining (%)",
+                 axes = FALSE, main = main, ...)
+  graphics::axis(1)
+  graphics::axis(2, las = 1)
+
+  for (i in seq_along(curve_data)) {
+    cd <- curve_data[[i]]
+
+    # Credible band
+    graphics::polygon(c(t_grid, rev(t_grid)),
+                      c(cd$upper, rev(cd$lower)),
+                      col = grDevices::adjustcolor(cols[i], alpha.f = 0.2),
+                      border = NA)
+
+    # Median line
+    graphics::lines(t_grid, cd$median, col = cols[i], lwd = 2)
+  }
+
+  if (show_legend && n_curves > 1L) {
+    graphics::legend("topright", legend = labels, col = cols, lwd = 2,
                      bty = "n", cex = 0.9)
   }
 
