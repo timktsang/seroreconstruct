@@ -4,3 +4,4 @@
 ^notebook$
 ^\.DS_Store$
 ^test_dynamic_seasons\.R$
+^\.github$
