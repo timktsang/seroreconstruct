@@ -496,7 +496,7 @@ plot_waning <- function(fit, days = 400, cols = NULL, main = NULL,
   }
 
   if (show_legend && n_curves > 1L) {
-    graphics::legend("topright", legend = labels, col = cols, lwd = 2,
+    graphics::legend("bottomleft", legend = labels, col = cols, lwd = 2,
                      bty = "n", cex = 0.9)
   }
 
