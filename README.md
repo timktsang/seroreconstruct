@@ -93,14 +93,6 @@ plot_infection_prob(fit,
 
 Forest plot of posterior infection probabilities. Supports combining multiple fits with section headers for multi-group comparisons.
 
-### MCMC diagnostics
-
-```r
-plot_diagnostics(fit)
-```
-
-<img src="man/figures/diagnostics.png" width="650"/>
-
 ## Tables
 
 ```r
