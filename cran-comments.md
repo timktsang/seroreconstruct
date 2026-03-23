@@ -1,4 +1,12 @@
-# CRAN submission comments — seroreconstruct 1.1.0
+# CRAN submission comments — seroreconstruct 1.1.1
+
+## Resubmission
+
+This is a resubmission addressing CRAN pre-test feedback on v1.1.0:
+
+- **Fixed**: Variable Length Arrays (VLA) in C++ replaced with `std::vector<double>` (3 occurrences in `mcmc_function.cpp`). This resolves the `-Wvla` warning on Windows/GCC.
+- **Fixed**: Removed obsolete `CXX_STD = CXX11` from `Makevars` and `Makevars.win`, and removed `C++11` from `SystemRequirements`. The package compiles fine under the default C++ standard.
+- **Noted**: "Misspelled" words (HAI, Tsang, et, al, titer) are all correct — HAI is a standard immunology abbreviation (hemagglutination inhibition), titer is the standard US English spelling, and Tsang et al. is an author citation.
 
 ## R CMD check results
 

@@ -509,7 +509,7 @@ double proratio=0;
 if (ifupdate[1]==1){	
 int problength=data111(b1,4);
 
-double prob[problength];
+std::vector<double> prob(problength);
 double totalprob=0;
 
 for (b2=problength-1;b2>=data111(b1,3);--b2){
@@ -863,7 +863,7 @@ data21pro(b1,6)=R::rgamma(para[19+4*(data11(b1,13))+2*data11(b1,14)],1.0);
 // infection time
 int problength=data111(b1,4);
 
-double prob[problength];
+std::vector<double> prob(problength);
 double totalprob=0;
 
 for (b2=problength-1;b2>=data111(b1,3);--b2){
@@ -1084,7 +1084,7 @@ data21pro(b1,6)=R::rgamma(para[19+4*(data11(b1,13))+2*data11(b1,14)],1.0);
 // infection time
 int problength=data111(b1,4);
 
-double prob[problength];
+std::vector<double> prob(problength);
 double totalprob=0;
 
 for (b2=problength-1;b2>=data111(b1,3);--b2){

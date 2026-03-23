@@ -1,3 +1,15 @@
+# seroreconstruct 1.1.1
+
+## Bug fixes
+
+* Fixed variable length array (VLA) warnings in C++ code flagged by GCC 14
+  on Windows (`-Wvla`). Replaced with `std::vector<double>`.
+
+* Removed obsolete `CXX_STD = CXX11` from Makevars files and
+  `SystemRequirements` — the default C++ standard is sufficient.
+
+---
+
 # seroreconstruct 1.1.0
 
 ## New features

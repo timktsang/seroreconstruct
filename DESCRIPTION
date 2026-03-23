@@ -1,7 +1,7 @@
 Package: seroreconstruct
 Type: Package
 Title: Reconstructing Antibody Dynamics to Estimate the Risk of Influenza Virus Infection
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: 
     c(person(given = "Tim",
              family = "Tsang",
@@ -34,5 +34,5 @@ Suggests:
     rmarkdown
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-SystemRequirements: C++11, TBB
+SystemRequirements: TBB
 RoxygenNote: 7.3.3
