@@ -72,19 +72,19 @@ for a 95% interval.</p></dd>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="sero_reconstruct.html">sero_reconstruct</a></span><span class="op">(</span><span class="va">inputdata</span>, <span class="va">flu_activity</span>,</span></span>
 <span class="r-in"><span>                        n_iteration <span class="op">=</span> <span class="fl">2000</span>, burnin <span class="op">=</span> <span class="fl">1000</span>, thinning <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1000</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> MCMC complete in 28 seconds. Use summary() to view estimates.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> MCMC complete in 29 seconds. Use summary() to view estimates.</span>
 <span class="r-in"><span><span class="fu">table_parameters</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                Parameter         Mean       Median        Lower        Upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1           random_error  0.002223158  0.002144885  0.001445509  0.003227777</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2          twofold_error  2.113138595  2.109557613  1.934144709  2.342849078</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      boosting_children  3.115977344  3.110639859  2.782389890  3.483439575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4        waning_children  0.098018478  0.096173453  0.059914999  0.142621784</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5        boosting_adults  2.533081277  2.596249741  1.952154268  2.895433940</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6          waning_adults  0.180013040  0.185702942  0.119479332  0.231707432</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7      inf_prob_children  0.490786481  0.485409698  0.371360053  0.630993105</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8        inf_prob_adults  0.358487142  0.358872456  0.289750695  0.426806000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  inf_prob_older_adults  0.259958111  0.248000829  0.154912513  0.387684986</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10              hai_coef -0.348902295 -0.344081872 -0.438665487 -0.246203847</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1           random_error  0.003412853  0.003352479  0.001830899  0.005457652</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          twofold_error  2.024316610  2.037772925  1.777694542  2.238514748</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      boosting_children  2.725591888  2.748241417  1.854077602  3.484546466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        waning_children  0.120885888  0.115391366  0.059849537  0.201081699</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5        boosting_adults  2.488394977  2.483463123  2.021878424  2.981259657</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6          waning_adults  0.055891705  0.058434216  0.034719929  0.076565611</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      inf_prob_children  0.542112263  0.542481295  0.367732314  0.745727722</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8        inf_prob_adults  0.354311038  0.356557796  0.272281582  0.429585140</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  inf_prob_older_adults  0.254116503  0.248833975  0.166219692  0.383262753</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10              hai_coef -0.488309214 -0.492834293 -0.653790639 -0.323175360</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

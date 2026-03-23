@@ -120,7 +120,7 @@ samples are accessible directly from the fit object (e.g.,
 a1 <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
 #> 1000
-#> MCMC complete in 28 seconds. Use summary() to view estimates.
+#> MCMC complete in 27 seconds. Use summary() to view estimates.
 summary(a1)
 #>                                                                                                        Variable
 #>                                                                                                Random error (%)
@@ -140,21 +140,21 @@ summary(a1)
 #>      Relative risk for children with pre-epidemic HAI titer < 10 (Ref: Adults with pre-epidemic HAI titer < 10)
 #>  Relative risk for older adults with pre-epidemic HAI titer < 10 (Ref: Adults with pre-epidemic HAI titer < 10)
 #>  Point estimate Lower bound Upper bound
-#>            2.38        1.44        3.65
-#>            2.52        3.22        1.96
-#>            7.34        4.61       10.71
-#>            1.10        1.05        1.19
-#>            5.50        4.43        6.78
-#>            1.13        1.09        1.20
-#>            0.21        0.18        0.24
-#>            0.21        0.17        0.24
-#>            0.16        0.11        0.21
-#>            0.41        0.34        0.49
-#>            0.28        0.23        0.34
-#>            0.22        0.15        0.29
-#>            1.02        0.81        1.28
-#>            1.48        1.22        1.80
-#>            0.78        0.53        1.05
-#>            0.78        0.55        1.05
+#>            2.01        1.42        2.81
+#>            3.60        4.27        2.94
+#>            6.05        4.44        7.99
+#>            1.03        1.01        1.07
+#>            6.41        4.78        8.32
+#>            1.09        1.06        1.14
+#>            0.20        0.17        0.23
+#>            0.21        0.18        0.25
+#>            0.13        0.09        0.18
+#>            0.45        0.38        0.55
+#>            0.30        0.26        0.35
+#>            0.19        0.13        0.26
+#>            0.96        0.76        1.19
+#>            1.50        1.21        1.83
+#>            0.63        0.41        0.90
+#>            0.64        0.42        0.91
 # }
 ```
