@@ -69,15 +69,15 @@ individual in the dataset.</p>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="sero_reconstruct.html">sero_reconstruct</a></span><span class="op">(</span><span class="va">inputdata</span>, <span class="va">flu_activity</span>,</span></span>
 <span class="r-in"><span>                        n_iteration <span class="op">=</span> <span class="fl">2000</span>, burnin <span class="op">=</span> <span class="fl">1000</span>, thinning <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1000</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> MCMC complete in 28 seconds. Use summary() to view estimates.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> MCMC complete in 27 seconds. Use summary() to view estimates.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">table_infections</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Individual Infection_prob Infection_time_mean Baseline_titer_mean</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1          1          0.000                  NA                0.46</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2          2          0.001               939.0                0.49</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3          3          0.000                  NA                0.47</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4          4          0.000                  NA                4.52</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5          5          0.000                  NA                0.47</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6          6          0.058               942.5                0.49</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1          1          0.000                  NA                0.47</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          2          0.000                  NA                0.48</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          3          0.000                  NA                0.48</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4          4          0.312               949.4                4.44</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5          5          0.000                  NA                0.54</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6          6          0.000                  NA                0.50</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
