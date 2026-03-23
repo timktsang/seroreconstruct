@@ -20,13 +20,13 @@ plot_trajectory(
 \item{fit}{A \code{seroreconstruct_fit} or \code{seroreconstruct_joint}
 object.}
 
-\item{id}{Row index (integer) or subject identifier. If \code{subject_ids}
-was provided to \code{sero_reconstruct()}, or if \code{subjects} is
-supplied here, the value is matched against those IDs. Otherwise treated
-as a 1-based integer row index.}
+\item{id}{Row index (integer) or subject identifier to plot. If
+\code{subject_ids} was provided to \code{sero_reconstruct()}, or if
+\code{subjects} is supplied here, the value is matched against those IDs
+to find the row. Otherwise treated as a 1-based integer row index.}
 
-\item{subjects}{Optional vector of subject identifiers aligned with fit
-rows. Use when \code{subject_ids} was not provided at fitting time.
+\item{subjects}{Optional vector of subject identifiers aligned with fit rows.
+Use this when \code{subject_ids} was not provided at fitting time.
 Example: \code{subjects = inputdata$subject_id}.}
 
 \item{n_samples}{Number of posterior samples to draw. Default 100.}

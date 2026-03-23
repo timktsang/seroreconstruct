@@ -21,6 +21,14 @@ hemagglutination-inhibiting (HAI) titers to infection risk.
 - **Subgroup comparisons** via `group_by` — fit independent MCMCs for age groups, vaccination status, or other strata
 - **Shared parameters** via `shared` — run a joint model that shares measurement error and/or boosting/waning across groups while estimating group-specific infection risk
 - **S3 classes** with `print()` and `summary()` methods for clean output
+- **Visualization**:
+  - `plot_trajectory()` — individual antibody trajectory with posterior infection/uninfection paths (Figure 1B style)
+  - `plot_boosting()` — violin plots of posterior fold-rise in antibody titer (Figure 1C style)
+  - `plot_waning()` — waning curves with credible bands showing antibody decay over time (Figure 1D style)
+  - `plot_infection_prob()` — forest plot of infection probabilities with credible intervals, supporting multi-group comparison
+  - `plot_diagnostics()` — MCMC trace and density plots for convergence assessment
+- **Parameter tables** via `table_parameters()` and `table_infections()`
+- **Subject ID tracking** — pass `subject_ids` to `sero_reconstruct()` for ID-based individual lookup in plots
 - **Simulation** — generate synthetic datasets for validation and power analysis
 
 ## Installation

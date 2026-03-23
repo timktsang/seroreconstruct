@@ -31,17 +31,17 @@ When provided, independent MCMCs are fit for each combination of the grouping
 variables. The formula uses interaction semantics: \code{~age + vac} means all
 age-by-vac combinations. Returns a \code{seroreconstruct_multi} object.}
 
-\item{subject_ids}{Optional vector (character, numeric, or factor) of subject
-identifiers, one per row of \code{inputdata}. When provided, stored in the
-fit object and used by \code{plot_trajectory()} to look up individuals by
-ID rather than row index. Example: \code{subject_ids = inputdata$household_id}.}
-
 \item{shared}{Optional character vector specifying which parameters to share across
 groups when \code{group_by} is also provided. Valid values: \code{"error"}
 (measurement error), \code{"boosting_waning"} (antibody boosting and waning).
 When specified, a single joint MCMC is run with all groups pooled together,
 sharing the specified parameters while estimating group-specific infection
 probabilities. Returns a \code{seroreconstruct_joint} object.}
+
+\item{subject_ids}{Optional vector (character, numeric, or factor) of subject
+identifiers, one per row of \code{inputdata}. When provided, stored in the
+fit object and used by \code{plot_trajectory()} to look up individuals by
+ID rather than row index. Example: \code{subject_ids = inputdata$household_id}.}
 }
 \value{
 A \code{seroreconstruct_fit} object (when \code{group_by} is \code{NULL})

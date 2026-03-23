@@ -200,7 +200,10 @@ plot_trajectory <- function(fit, id = 1, subjects = NULL, n_samples = 100,
                  xlab = "Days since start of follow up",
                  ylab = "Antibody titer",
                  axes = FALSE, main = main, ...)
-  graphics::axis(1)
+  x_ticks <- pretty(c(0, x_max))
+  # Ensure axis covers all data: extend to max observed x if last tick falls short
+  if (max(x_ticks) < x_max) x_ticks <- c(x_ticks, ceiling(x_max / 50) * 50)
+  graphics::axis(1, at = x_ticks)
   graphics::axis(2, at = y_ticks, labels = y_labels, las = 1)
 
   # ---- Draw posterior trajectories ----
@@ -478,4 +481,231 @@ plot_waning <- function(fit, days = 400, cols = NULL, main = NULL,
   }
 
   invisible(NULL)
+}
+
+#' Plot infection probabilities (forest plot)
+#'
+#' Forest plot showing posterior infection probabilities with 95\% credible
+#' intervals. Supports single fits, multi-group fits, and combining results
+#' from multiple fits with section headers.
+#'
+#' @param fits A \code{seroreconstruct_fit}, \code{seroreconstruct_joint},
+#'   \code{seroreconstruct_multi} object, or a named list of fit objects.
+#'   When a named list is provided, names are used as section headers.
+#' @param labels Optional character vector of custom labels for the strata
+#'   within each fit. For a named list of fits, use a list of character vectors.
+#' @param main Optional plot title.
+#' @param file Optional file path for PDF output. Default: \code{NULL}
+#'   (current device).
+#' @param width PDF width in inches. Default: 8.
+#' @param height PDF height in inches. Default: auto-calculated.
+#' @param xlim Numeric vector of length 2 for the x-axis range (probability
+#'   scale, e.g. \code{c(0, 0.5)}). Default: auto-determined.
+#' @param cex Character expansion factor. Default: 0.85.
+#' @param ... Additional graphical parameters passed to \code{plot()}.
+#' @return Invisible data frame of the plotted estimates (Stratum, Probability,
+#'   Lower, Upper).
+#' @examples
+#' \donttest{
+#' fit <- sero_reconstruct(inputdata, flu_activity,
+#'                         n_iteration = 2000, burnin = 1000, thinning = 1)
+#' plot_infection_prob(fit)
+#' }
+#' @export
+plot_infection_prob <- function(fits, labels = NULL, main = NULL,
+                                file = NULL, width = 8, height = NULL,
+                                xlim = NULL, cex = 0.85, ...) {
+
+  # ---- Normalize input ----
+  single_fit <- FALSE
+  if (inherits(fits, c("seroreconstruct_fit", "seroreconstruct_joint"))) {
+    fits <- list(fits)
+    single_fit <- TRUE
+  } else if (inherits(fits, "seroreconstruct_multi")) {
+    gl <- attr(fits, "group_labels")
+    fit_list <- list()
+    for (g in gl) fit_list[[g]] <- fits[[g]]
+    fits <- fit_list
+  }
+
+  has_sections <- !single_fit && !is.null(names(fits)) && all(nchar(names(fits)) > 0)
+
+  # ---- Extract infection probabilities ----
+  rows <- list()
+
+  for (i in seq_along(fits)) {
+    fit <- fits[[i]]
+    s <- summary(fit)
+    tbl <- s$table
+
+    # Find infection probability rows, exclude HAI titer and relative risk rows
+    inf_mask <- grepl("^Infection probability", tbl$Variable) &
+                !grepl("HAI titer", tbl$Variable)
+
+    if (!any(inf_mask)) next
+
+    sub_tbl <- tbl[inf_mask, , drop = FALSE]
+
+    # Clean labels
+    clean_labels <- sub("^Infection probability for ", "", sub_tbl$Variable)
+    clean_labels <- sub("^Infection probability \\((.+)\\)$", "\\1", clean_labels)
+    clean_labels <- sub("^Infection probability$", "Overall", clean_labels)
+    clean_labels <- paste0(toupper(substr(clean_labels, 1, 1)),
+                           substr(clean_labels, 2, nchar(clean_labels)))
+
+    # Apply custom labels if provided
+    if (!is.null(labels)) {
+      if (is.list(labels) && length(labels) >= i) {
+        if (length(labels[[i]]) == length(clean_labels)) {
+          clean_labels <- labels[[i]]
+        }
+      } else if (is.character(labels) && single_fit) {
+        if (length(labels) == length(clean_labels)) {
+          clean_labels <- labels
+        }
+      }
+    }
+
+    # Section header
+    if (has_sections) {
+      rows[[length(rows) + 1]] <- list(
+        type = "header", label = names(fits)[i]
+      )
+    }
+
+    # Estimate rows
+    for (j in seq_len(nrow(sub_tbl))) {
+      rows[[length(rows) + 1]] <- list(
+        type = "estimate",
+        label = clean_labels[j],
+        indented = has_sections,
+        est   = sub_tbl[j, "Point estimate"],
+        lower = sub_tbl[j, "Lower bound"],
+        upper = sub_tbl[j, "Upper bound"]
+      )
+    }
+  }
+
+  n_rows <- length(rows)
+  if (n_rows == 0) stop("No infection probability estimates found.", call. = FALSE)
+
+  # ---- Open PDF device ----
+  opened_device <- FALSE
+  if (!is.null(file)) {
+    if (is.null(height)) height <- 0.45 * n_rows + 1.8
+    grDevices::pdf(file, width = width, height = height)
+    opened_device <- TRUE
+  }
+
+  # ---- X-axis range ----
+  est_rows <- Filter(function(r) r$type == "estimate", rows)
+  all_upper <- sapply(est_rows, function(r) r$upper)
+  if (is.null(xlim)) {
+    x_max <- min(1, max(all_upper, na.rm = TRUE) * 1.15)
+    x_max <- max(x_max, 0.2)
+    xlim <- c(0, x_max)
+  }
+  dx <- diff(xlim)
+
+  # Coordinate layout: [label region] | [forest] | [prob text]
+  label_x    <- xlim[1] - dx
+  right_edge <- xlim[2] + 0.50 * dx
+
+  op <- graphics::par(no.readonly = TRUE)
+  on.exit({
+    graphics::par(op)
+    if (opened_device) grDevices::dev.off()
+  })
+  graphics::par(mar = c(0, 0, 0, 0))
+
+  y_top    <- n_rows + 1.5
+  y_bottom <- -1.8
+  graphics::plot(0, 0, type = "n",
+                 xlim = c(label_x, right_edge),
+                 ylim = c(y_bottom, y_top),
+                 axes = FALSE, xlab = "", ylab = "", ...)
+
+  # Column headers
+  header_y <- n_rows + 0.8
+  graphics::text(label_x + 0.04 * dx, header_y, "Stratum",
+                 adj = 0, font = 2, cex = cex)
+  graphics::text(right_edge, header_y, "Probability",
+                 adj = 1, font = 2, cex = cex)
+  graphics::text(right_edge, header_y - 0.55, "(95% CI)",
+                 adj = 1, cex = cex * 0.85)
+
+  # Title
+  if (!is.null(main) && nchar(main) > 0) {
+    graphics::text((label_x + right_edge) / 2, n_rows + 1.3, main,
+                   adj = 0.5, font = 2, cex = cex * 1.2)
+  }
+
+  # ---- Draw rows ----
+  for (i in seq_len(n_rows)) {
+    row <- rows[[i]]
+    y <- n_rows - i + 0.5
+
+    # Alternating background
+    if (i %% 2 == 0) {
+      graphics::rect(label_x, y - 0.5, right_edge, y + 0.5,
+                     col = grDevices::rgb(0, 0, 0, 0.05), border = NA)
+    }
+
+    if (row$type == "header") {
+      # Section header (bold, grey background)
+      graphics::rect(label_x, y - 0.5, right_edge, y + 0.5,
+                     col = grDevices::rgb(0, 0, 0, 0.08), border = NA)
+      graphics::text(label_x + 0.04 * dx, y, row$label,
+                     adj = 0, font = 2, cex = cex * 0.95)
+
+    } else {
+      # Estimate row
+      indent_x <- if (isTRUE(row$indented)) label_x + 0.16 * dx else label_x + 0.04 * dx
+      graphics::text(indent_x, y, row$label, adj = 0, cex = cex)
+
+      if (!is.na(row$est)) {
+        lo <- max(xlim[1], row$lower)
+        hi <- min(xlim[2], row$upper)
+        pt <- max(xlim[1], min(xlim[2], row$est))
+
+        graphics::points(pt, y, pch = 15, cex = 0.9)
+        graphics::segments(lo, y, hi, y, lwd = 1.5)
+
+        # Arrows if CI extends beyond xlim
+        if (row$lower < xlim[1])
+          graphics::arrows(lo + 0.04 * dx, y, lo, y, length = 0.05)
+        if (row$upper > xlim[2])
+          graphics::arrows(hi - 0.04 * dx, y, hi, y, length = 0.05)
+      }
+
+      prob_text <- if (!is.na(row$est)) {
+        sprintf("%.1f%% (%.1f, %.1f)",
+                row$est * 100, row$lower * 100, row$upper * 100)
+      } else "\u2014"
+      graphics::text(right_edge, y, prob_text, adj = 1, cex = cex * 0.9)
+    }
+  }
+
+  # Dashed reference line
+  est_idx <- which(sapply(rows, function(r) r$type == "estimate"))
+  if (length(est_idx) > 0) {
+    graphics::segments(0, n_rows - max(est_idx), 0, n_rows - min(est_idx) + 1,
+                       lty = 2, col = "grey60")
+  }
+
+  # X-axis with percentage labels
+  axis_y    <- -0.1
+  tick_vals <- pretty(xlim, n = 5)
+  tick_vals <- tick_vals[tick_vals >= xlim[1] & tick_vals <= xlim[2]]
+  graphics::axis(1, at = tick_vals,
+                 labels = paste0(round(tick_vals * 100), "%"),
+                 pos = axis_y, cex.axis = cex)
+
+  # Return estimate data
+  out <- do.call(rbind, lapply(est_rows, function(r) {
+    data.frame(Stratum = r$label, Probability = r$est,
+               Lower = r$lower, Upper = r$upper, stringsAsFactors = FALSE)
+  }))
+  rownames(out) <- NULL
+  invisible(out)
 }
