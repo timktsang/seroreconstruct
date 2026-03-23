@@ -23,9 +23,20 @@
     }
   }
 
+  # Boosting/waning labels: use first two group labels (boost_wane_group maps
+
+  # to at most 2 groups: group 0 = first label, group 1 = second label)
+  bw_labels <- if (length(group_labels) >= 2L) {
+    group_labels[1:2]
+  } else {
+    c(group_labels[1], group_labels[1])
+  }
+
   shared <- c("random_error", "twofold_error",
-              "boosting_child", "waning_child",
-              "boosting_adult", "waning_adult")
+              paste0("boosting_", bw_labels[1]),
+              paste0("waning_", bw_labels[1]),
+              paste0("boosting_", bw_labels[2]),
+              paste0("waning_", bw_labels[2]))
 
   inf_names <- character(0)
   for (s in seq_len(n_seasons)) {
@@ -74,15 +85,15 @@
 
 #' Summary table of model parameters with credible intervals
 #'
-#' Extracts posterior summaries (mean, median, credible intervals, effective
-#' sample size) for all active model parameters.
+#' Extracts posterior summaries (mean, median, credible intervals) for all
+#' active model parameters.
 #'
 #' @param fit A \code{seroreconstruct_fit}, \code{seroreconstruct_joint}, or
 #'   \code{seroreconstruct_multi} object.
 #' @param probs Numeric vector of length 2 giving the lower and upper quantile
 #'   probabilities for the credible interval. Default \code{c(0.025, 0.975)}
 #'   for a 95\% interval.
-#' @return A data frame with columns: Parameter, Mean, Median, Lower, Upper, ESS.
+#' @return A data frame with columns: Parameter, Mean, Median, Lower, Upper.
 #' @examples
 #' \donttest{
 #' fit <- sero_reconstruct(inputdata, flu_activity,

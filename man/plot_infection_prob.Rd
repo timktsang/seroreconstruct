@@ -17,8 +17,10 @@ plot_infection_prob(
 )
 }
 \arguments{
-\item{fits}{A \code{seroreconstruct_fit}, \code{seroreconstruct_joint},
-\code{seroreconstruct_multi} object, or a named list of fit objects.
+\item{fits}{A \code{seroreconstruct_fit}, \code{seroreconstruct_multi}
+object, or a named list of fit objects. \code{seroreconstruct_joint}
+objects are supported only for fully shared fits
+(\code{shared = c("error", "boosting_waning")}).
 When a named list is provided, names are used as section headers.}
 
 \item{labels}{Optional character vector of custom labels for the strata

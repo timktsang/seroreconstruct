@@ -15,11 +15,11 @@ probabilities for the credible interval. Default \code{c(0.025, 0.975)}
 for a 95\% interval.}
 }
 \value{
-A data frame with columns: Parameter, Mean, Median, Lower, Upper, ESS.
+A data frame with columns: Parameter, Mean, Median, Lower, Upper.
 }
 \description{
-Extracts posterior summaries (mean, median, credible intervals, effective
-sample size) for all active model parameters.
+Extracts posterior summaries (mean, median, credible intervals) for all
+active model parameters.
 }
 \examples{
 \donttest{
