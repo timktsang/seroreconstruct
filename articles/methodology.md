@@ -1,0 +1,153 @@
+# Statistical Methodology
+
+## Model overview
+
+`seroreconstruct` implements a Bayesian framework for inferring
+influenza virus infection from serial hemagglutination inhibition (HAI)
+antibody titers. The model accounts for:
+
+- Antibody boosting after infection
+- Antibody waning over time
+- Measurement error in the HAI assay
+- Heterogeneity in baseline titers and infection risk
+
+The full statistical details are described in [Tsang et al. (2022)
+*Nature Communications*
+13:1557](https://doi.org/10.1038/s41467-022-29310-8).
+
+## Notation
+
+| Symbol               | Description                                                          |
+|----------------------|----------------------------------------------------------------------|
+| $Y_{i,t}$            | Observed (log2-transformed) HAI titer for individual $i$ at time $t$ |
+| $Z_{i} \in \{ 0,1\}$ | Latent infection status for individual $i$                           |
+| $T_{i}$              | Latent infection time (if infected)                                  |
+| $b$                  | Antibody boosting (log2 fold-rise after infection)                   |
+| $w$                  | Antibody waning rate (log2 fold-decrease per year)                   |
+| $\sigma_{r}$         | Random measurement error                                             |
+| $p_{2f}$             | Two-fold (one-dilution) measurement error probability                |
+| $\lambda_{a}$        | Age-specific infection hazard scaling                                |
+| $\beta$              | HAI titer protection coefficient                                     |
+
+## Antibody dynamics model
+
+For an individual $i$ with baseline titer $B_{i}$ (log2 scale), the true
+antibody trajectory is:
+
+**If not infected** ($Z_{i} = 0$):
+$${\widetilde{Y}}_{i}(t) = B_{i} \cdot e^{- w \cdot t/365}$$
+
+**If infected** ($Z_{i} = 1$ at time $T_{i}$):
+
+- Pre-infection: exponential decay from baseline
+- Infection: linear 14-day boosting ramp of magnitude $b$ (log2 scale)
+- Post-infection: exponential decay from the boosted level
+
+## Measurement error model
+
+The observed titer $Y_{i,t}$ is related to the true titer
+${\widetilde{Y}}_{i}(t)$ by:
+
+1.  **Random error**: Gaussian noise with standard deviation
+    $\sigma_{r}$
+2.  **Two-fold error**: with probability $p_{2f}$, the observed titer is
+    shifted by one dilution step (the HAI assay measures in 2-fold
+    dilutions: \$\<\$10, 10, 20, 40, 80, …)
+
+These parameters are properties of the laboratory assay and are shared
+across all individuals and groups.
+
+## Infection risk model
+
+The probability of infection for individual $i$ in age group $a$ depends
+on influenza activity and baseline HAI titer:
+
+$$P\left( Z_{i} = 1 \right) = 1 - \exp\left( - \lambda_{a} \cdot \sum\limits_{t}\text{ILI}(t) \cdot \exp\left( \beta \cdot B_{i}/10 \right) \right)$$
+
+where $\text{ILI}(t)$ is the daily influenza-like illness rate,
+$\lambda_{a}$ is the age-specific infection hazard scaling, and $\beta$
+is the HAI titer protection coefficient (negative values indicate
+protective effect of higher baseline titers).
+
+## Prior distributions
+
+The model uses weakly informative priors. The MCMC uses
+Metropolis-Hastings updates with adaptive proposal tuning during
+burn-in. Key features:
+
+- Infection times $T_{i}$ are sampled uniformly within the follow-up
+  period
+- Baseline titers are drawn from the empirical distribution of observed
+  pre-season titers
+- Parameter proposals use truncated normal distributions to respect
+  natural constraints (e.g., boosting $> 0$, waning $> 0$)
+
+## MCMC implementation
+
+The posterior is sampled using a custom C++ MCMC sampler (via
+Rcpp/RcppArmadillo) with the following structure:
+
+1.  **Gibbs updates** for discrete parameters (infection status,
+    infection time)
+2.  **Metropolis-Hastings updates** for continuous parameters (boosting,
+    waning, error, infection hazard, HAI coefficient)
+3.  **Parallel chains** via RcppParallel (optional)
+
+### Convergence diagnostics
+
+After fitting, check convergence using:
+
+- **Trace plots**: `plot_diagnostics(fit)` — look for stationarity (no
+  trends) and good mixing (no long excursions)
+- **Effective sample size**: internal ESS calculation uses the initial
+  positive sequence estimator (Geyer, 1992)
+- **Multiple chains**: fit the model multiple times with different
+  random seeds and compare posterior distributions
+
+### Recommendations for production analyses
+
+| Setting            | Minimum | Recommended |
+|--------------------|---------|-------------|
+| `n_iteration`      | 50,000  | 200,000     |
+| `burnin`           | 25,000  | 100,000     |
+| `thinning`         | 5       | 10          |
+| Independent chains | 2       | 3–4         |
+
+## Parameter layout
+
+The posterior samples are stored in `fit$posterior_model_parameter`, a
+matrix with rows = posterior samples and columns = parameters:
+
+| Columns    | Parameters                                | Count |
+|------------|-------------------------------------------|-------|
+| 1–2        | Random error, two-fold error              | 2     |
+| 3–6        | Boosting and waning (2 groups × 2 params) | 4     |
+| 7 to 6+$G$ | Infection hazard per group ($G$ groups)   | $G$   |
+| 6+$G$+1    | HAI titer protection coefficient          | 1     |
+
+Total: $7 + G$ parameters per season.
+
+For multi-season fits, infection hazard and HAI coefficient are
+replicated per season: $6 + G \times S + S$ total parameters.
+
+## Shared parameter models
+
+When comparing groups (e.g., vaccinated vs unvaccinated), measurement
+error is always shared because it reflects the laboratory assay, not the
+biology. Boosting and waning can optionally be shared or group-specific:
+
+- `shared = c("error", "boosting_waning")`: all groups share error and
+  antibody dynamics; only infection risk differs
+- `shared = "error"`: error is shared but each group has its own
+  boosting and waning rates
+
+## References
+
+Tsang TK, Perera RAPM, Fang VJ, Wong JY, Shiu EY, So HC, Ip DKM, Malik
+Peiris JS, Leung GM, Cowling BJ, Cauchemez S. (2022). Reconstructing
+antibody dynamics to estimate the risk of influenza virus infection.
+*Nature Communications* 13:1557. doi:
+[10.1038/s41467-022-29310-8](https://doi.org/10.1038/s41467-022-29310-8)
+
+Geyer CJ. (1992). Practical Markov chain Monte Carlo. *Statistical
+Science* 7(4):473–483.
