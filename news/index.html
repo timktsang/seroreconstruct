@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">seroreconstruct</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,14 @@
       <small>Source: <a href="https://github.com/timktsang/seroreconstruct/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.1" id="seroreconstruct-111">seroreconstruct 1.1.1<a class="anchor" aria-label="anchor" href="#seroreconstruct-111"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-1-1-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-1"></a></h3>
+<ul><li><p>Fixed variable length array (VLA) warnings in C++ code flagged by GCC 14 on Windows (<code>-Wvla</code>). Replaced with <code>std::vector&lt;double&gt;</code>.</p></li>
+<li><p>Removed obsolete <code>CXX_STD = CXX11</code> from Makevars files and <code>SystemRequirements</code> — the default C++ standard is sufficient.</p></li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="seroreconstruct-110">seroreconstruct 1.1.0<a class="anchor" aria-label="anchor" href="#seroreconstruct-110"></a></h2>
 <div class="section level3">
