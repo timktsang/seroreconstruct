@@ -46,6 +46,9 @@ reference:
       - print.seroreconstruct_fit
       - print.seroreconstruct_joint
       - print.seroreconstruct_multi
+      - print.summary.seroreconstruct_fit
+      - print.summary.seroreconstruct_joint
+      - print.summary.seroreconstruct_multi
       - "[[.seroreconstruct_multi"
 
   - title: "Deprecated"
