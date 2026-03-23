@@ -1,0 +1,61 @@
+url: https://timktsang.github.io/seroreconstruct/
+
+template:
+  bootstrap: 5
+
+reference:
+  - title: "Model Fitting"
+    desc: "Core functions for running the MCMC and extracting results"
+    contents:
+      - sero_reconstruct
+      - summary.seroreconstruct_fit
+      - summary.seroreconstruct_joint
+      - summary.seroreconstruct_multi
+
+  - title: "Visualization"
+    desc: "Publication-ready plots"
+    contents:
+      - plot_diagnostics
+      - plot_trajectory
+      - plot_boosting
+      - plot_waning
+      - plot_infection_prob
+
+  - title: "Tables"
+    desc: "Summary tables for model output"
+    contents:
+      - table_parameters
+      - table_infections
+
+  - title: "Simulation"
+    desc: "Generate synthetic data"
+    contents:
+      - simulate_data
+
+  - title: "Data"
+    desc: "Bundled example datasets"
+    contents:
+      - inputdata
+      - flu_activity
+      - para1
+      - para2
+
+  - title: "S3 Methods"
+    desc: "Print and subset methods"
+    contents:
+      - print.seroreconstruct_fit
+      - print.seroreconstruct_joint
+      - print.seroreconstruct_multi
+      - "[[.seroreconstruct_multi"
+
+  - title: "Deprecated"
+    contents:
+      - output_model_estimate
+
+articles:
+  - title: "Getting Started"
+    contents:
+      - introduction
+  - title: "Methodology"
+    contents:
+      - methodology

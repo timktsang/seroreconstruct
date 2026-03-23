@@ -1,0 +1,188 @@
+---
+title: "Getting Started with seroreconstruct"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with seroreconstruct}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+## Overview
+
+`seroreconstruct` is an R package for Bayesian inference of influenza virus
+infection status from serial antibody measurements. It relaxes the traditional
+4-fold rise rule by jointly modeling antibody boosting after infection, waning
+over time, and measurement error — estimating individual-level infection
+probabilities from hemagglutination inhibition (HAI) titer data.
+
+The statistical framework is described in
+[Tsang et al. (2022) *Nature Communications* 13:1557](https://doi.org/10.1038/s41467-022-29233-8).
+
+## Input data
+
+The package requires two data frames:
+
+1. **`inputdata`** — one row per individual with columns:
+   - `age_group`: integer (0 = children, 1 = adults, 2 = older adults)
+   - `start_time`, `end_time`: follow-up period (integer days)
+   - `time1`, `time2`, `time3`: serum collection dates (integer days)
+   - `HAI_titer_1`, `HAI_titer_2`, `HAI_titer3`: HAI titers at each collection
+
+2. **`inputILI`** — daily influenza-like illness activity, with rows corresponding
+   to consecutive days. The row indices must cover the range of `start_time` to
+   `end_time` in `inputdata`.
+
+```{r load-data}
+library(seroreconstruct)
+
+data("inputdata")
+data("flu_activity")
+
+head(inputdata)
+dim(inputdata)
+```
+
+## Fitting the model
+
+The main function `sero_reconstruct()` runs a Bayesian MCMC to estimate infection
+probabilities and antibody dynamics parameters. For real analyses, use at least
+100,000 iterations with appropriate burn-in and thinning.
+
+```{r fit-model, eval = FALSE}
+fit <- sero_reconstruct(inputdata, flu_activity,
+                        n_iteration = 200000, burnin = 100000, thinning = 10)
+```
+
+For this vignette, we use a short run for illustration:
+
+```{r fit-short}
+fit <- sero_reconstruct(inputdata, flu_activity,
+                        n_iteration = 5000, burnin = 2000, thinning = 1)
+fit
+```
+
+## Viewing results
+
+The `summary()` method extracts key estimates with 95% credible intervals:
+
+```{r summary}
+summary(fit)
+```
+
+The summary table includes:
+
+- **Random error (%)** and **Two-fold error (%)**: measurement error parameters
+- **Boosting**: fold-increase in antibody titer after infection
+- **Waning**: fold-decrease in antibody titer per year post-infection
+- **Infection probability**: overall and stratified by baseline HAI titer
+
+## Visualization
+
+### MCMC diagnostics
+
+Check convergence with trace plots and posterior density plots:
+
+```{r diagnostics, fig.height = 8}
+plot_diagnostics(fit, params = c("random_error", "twofold_error"))
+```
+
+### Antibody trajectories
+
+Visualize posterior trajectories for individual participants. Red lines show
+trajectories where infection occurred; blue lines show trajectories without
+infection.
+
+```{r trajectory, fig.height = 4}
+plot_trajectory(fit, id = 1)
+```
+
+### Boosting and waning
+
+```{r boosting-waning, fig.height = 4, fig.width = 9}
+par(mfrow = c(1, 2))
+plot_boosting(fit)
+plot_waning(fit)
+```
+
+### Infection probabilities
+
+Forest plot of posterior infection probabilities with 95% credible intervals:
+
+```{r infection-prob, fig.height = 3}
+plot_infection_prob(fit)
+```
+
+## Tables
+
+Extract parameter estimates and individual-level results as data frames:
+
+```{r tables}
+# Model parameter estimates
+table_parameters(fit)
+
+# Per-individual infection probabilities
+head(table_infections(fit))
+```
+
+## Subgroup analysis
+
+Compare infection rates across groups by fitting independent MCMCs:
+
+```{r group-by, eval = FALSE}
+fit_by_age <- sero_reconstruct(inputdata, flu_activity,
+                               n_iteration = 200000, burnin = 100000,
+                               thinning = 10, group_by = ~age_group)
+
+summary(fit_by_age)
+```
+
+## Joint model with shared parameters
+
+When comparing groups, measurement error is a lab assay property — it is shared
+across all groups. You can additionally share boosting/waning if the groups are
+expected to have similar antibody dynamics:
+
+```{r shared, eval = FALSE}
+# Share all parameters except infection probability
+fit_joint <- sero_reconstruct(inputdata, flu_activity,
+                              n_iteration = 200000, burnin = 100000,
+                              thinning = 10,
+                              group_by = ~age_group,
+                              shared = c("error", "boosting_waning"))
+
+summary(fit_joint)
+```
+
+## Simulation
+
+Generate synthetic data for power analysis or validation:
+
+```{r simulate}
+data("para1")
+data("para2")
+
+sim <- simulate_data(inputdata, flu_activity, para1, para2)
+names(sim)
+```
+
+The simulated data can be passed directly to `sero_reconstruct()` for
+simulation-recovery studies.
+
+## Citation
+
+To cite seroreconstruct in publications:
+
+> Tsang TK, Perera RAPM, Fang VJ, Wong JY, Shiu EY, So HC, Ip DKM,
+> Malik Peiris JS, Leung GM, Cowling BJ, Cauchemez S. (2022).
+> Reconstructing antibody dynamics to estimate the risk of influenza virus
+> infection. *Nature Communications* 13:1557.
+> doi: [10.1038/s41467-022-29233-8](https://doi.org/10.1038/s41467-022-29233-8)

@@ -5,3 +5,6 @@
 ^\.DS_Store$
 ^test_dynamic_seasons\.R$
 ^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
