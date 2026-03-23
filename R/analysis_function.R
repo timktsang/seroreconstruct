@@ -15,11 +15,14 @@
 #'   fit object and used by \code{plot_trajectory()} to look up individuals by
 #'   ID rather than row index. Example: \code{subject_ids = inputdata$household_id}.
 #' @param shared Optional character vector specifying which parameters to share across
-#'   groups when \code{group_by} is also provided. Valid values: \code{"error"}
-#'   (measurement error), \code{"boosting_waning"} (antibody boosting and waning).
-#'   When specified, a single joint MCMC is run with all groups pooled together,
-#'   sharing the specified parameters while estimating group-specific infection
-#'   probabilities. Returns a \code{seroreconstruct_joint} object.
+#'   groups when \code{group_by} is also provided. Measurement error parameters are
+#'   always shared (they are a lab assay property, identical across groups).
+#'   Valid values: \code{"error"} (measurement error only, the default when
+#'   \code{shared} is non-NULL), \code{"boosting_waning"} (also share antibody
+#'   boosting and waning across groups). When specified, a single joint MCMC is run
+#'   with all groups pooled together, sharing the specified parameters while
+#'   estimating group-specific infection probabilities. Returns a
+#'   \code{seroreconstruct_joint} object.
 #' @details
 #' \strong{Multi-season support:} If \code{inputdata} contains an optional integer
 #' column named \code{season} (0-indexed, contiguous from 0 to
@@ -79,6 +82,10 @@ sero_reconstruct <- function(inputdata, inputILI, n_iteration = 2000, burnin = 1
     if (length(bad) > 0) {
       stop("Invalid 'shared' values: ", paste(bad, collapse = ", "),
            ". Must be from: ", paste(valid_shared, collapse = ", "), call. = FALSE)
+    }
+    # Measurement error is always shared (lab assay property)
+    if (!("error" %in% shared)) {
+      shared <- c("error", shared)
     }
     if (!inherits(group_by, "formula")) {
       stop("'group_by' must be a formula (e.g., ~age_group).", call. = FALSE)

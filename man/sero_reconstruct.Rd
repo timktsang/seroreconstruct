@@ -32,11 +32,14 @@ variables. The formula uses interaction semantics: \code{~age + vac} means all
 age-by-vac combinations. Returns a \code{seroreconstruct_multi} object.}
 
 \item{shared}{Optional character vector specifying which parameters to share across
-groups when \code{group_by} is also provided. Valid values: \code{"error"}
-(measurement error), \code{"boosting_waning"} (antibody boosting and waning).
-When specified, a single joint MCMC is run with all groups pooled together,
-sharing the specified parameters while estimating group-specific infection
-probabilities. Returns a \code{seroreconstruct_joint} object.}
+groups when \code{group_by} is also provided. Measurement error parameters are
+always shared (they are a lab assay property, identical across groups).
+Valid values: \code{"error"} (measurement error only, the default when
+\code{shared} is non-NULL), \code{"boosting_waning"} (also share antibody
+boosting and waning across groups). When specified, a single joint MCMC is run
+with all groups pooled together, sharing the specified parameters while
+estimating group-specific infection probabilities. Returns a
+\code{seroreconstruct_joint} object.}
 
 \item{subject_ids}{Optional vector (character, numeric, or factor) of subject
 identifiers, one per row of \code{inputdata}. When provided, stored in the

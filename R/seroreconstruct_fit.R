@@ -364,21 +364,12 @@ summary.seroreconstruct_joint <- function(object, period, ...) {
   group_labels <- attr(object, "group_labels")
   shared <- attr(object, "shared")
 
-  # Only the fully-shared mode is currently supported for summary output.
-  # shared = "error" alone produces group-specific boosting/waning parameters
-  # that require a different summary layout.
-  if (!all(c("error", "boosting_waning") %in% shared)) {
-    stop("summary() for joint fits is currently only supported when ",
-         "shared = c(\"error\", \"boosting_waning\"). ",
-         "For partial sharing (shared = \"error\"), use table_parameters() ",
-         "to inspect all model parameters, or access the raw posterior via ",
-         "fit$posterior_model_parameter.", call. = FALSE)
-  }
+  bw_shared <- "boosting_waning" %in% shared
 
   z1 <- .mcmc_summary(object$posterior_model_parameter)
   z1[1, ] <- z1[1, ] * 10 * 100
   z1[2, ] <- 0.25 / exp(z1[2, ]) * 100
-  z1[3:4, ] <- 2^(z1[3:4, ])
+  z1[3:6, ] <- 2^(z1[3:6, ])
 
   mean_ci <- function(v) c(mean(v), quantile(v, c(0.025, 0.975)))
 
@@ -416,19 +407,39 @@ summary.seroreconstruct_joint <- function(object, period, ...) {
     )
   }
 
-  # Build shared parameter rows
-  shared_rows <- data.frame(matrix(NA, 4, 4))
-  shared_rows[1:4, ] <- z1[1:4, c(4, 1:3)]
-  names(shared_rows) <- c("Variable", "Point estimate", "Lower bound", "Upper bound")
-  shared_rows[, 1] <- c(
-    "Random error (%)",
-    "Two-fold error (%)",
-    "Fold-increase after infection (Boosting)",
-    "Fold-decrease after 1 year (Waning)"
-  )
+  # Build error rows (always shared)
+  error_rows <- data.frame(matrix(NA, 2, 4))
+  error_rows[1:2, ] <- z1[1:2, c(4, 1:3)]
+  names(error_rows) <- c("Variable", "Point estimate", "Lower bound", "Upper bound")
+  error_rows[, 1] <- c("Random error (%)", "Two-fold error (%)")
 
-  # Combine: shared rows + per-group infection rows
-  output <- shared_rows
+  # Build boosting/waning rows
+  if (bw_shared) {
+    # Shared: single set of boosting/waning (params 3-4, ignore 5-6 as duplicates)
+    bw_rows <- data.frame(matrix(NA, 2, 4))
+    bw_rows[1:2, ] <- z1[3:4, c(4, 1:3)]
+    names(bw_rows) <- c("Variable", "Point estimate", "Lower bound", "Upper bound")
+    bw_rows[, 1] <- c(
+      "Fold-increase after infection (Boosting)",
+      "Fold-decrease after 1 year (Waning)"
+    )
+  } else {
+    # Group-specific: params 3-4 = first group, 5-6 = other groups
+    # boost_wane_group 0 = group_labels[1], boost_wane_group 1 = group_labels[2]
+    bw_labels <- if (length(group_labels) >= 2L) group_labels[1:2] else rep(group_labels[1], 2)
+    bw_rows <- data.frame(matrix(NA, 4, 4))
+    bw_rows[1:4, ] <- z1[3:6, c(4, 1:3)]
+    names(bw_rows) <- c("Variable", "Point estimate", "Lower bound", "Upper bound")
+    bw_rows[, 1] <- c(
+      paste0("Fold-increase after infection for ", bw_labels[1], " (Boosting)"),
+      paste0("Fold-decrease after 1 year for ", bw_labels[1], " (Waning)"),
+      paste0("Fold-increase after infection for ", bw_labels[2], " (Boosting)"),
+      paste0("Fold-decrease after 1 year for ", bw_labels[2], " (Waning)")
+    )
+  }
+
+  # Combine: error rows + boosting/waning rows + per-group infection rows
+  output <- rbind(error_rows, bw_rows)
   for (g in seq_len(n_groups)) {
     output <- rbind(output, group_inf_rows[[g]])
   }
