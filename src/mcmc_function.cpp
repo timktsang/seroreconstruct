@@ -428,6 +428,7 @@ RMatrix<double> loglik1;
 RMatrix<double> loglik2;
 RMatrix<double> loglik3;
 RMatrix<double> temprecord;
+RMatrix<double> rng_draws;
 int hai_start;
 int n_groups;
 // destination vector
@@ -453,9 +454,10 @@ NumericMatrix loglik1,
 NumericMatrix loglik2,
 NumericMatrix loglik3,
 NumericMatrix temprecord,
+NumericMatrix rng_draws,
 int hai_start,
 int n_groups)
-:data11out(data11out),data21out(data21out),data11pro(data11pro),data21pro(data21pro),loglik1out(loglik1out),loglik2out(loglik2out),loglik3out(loglik3out),loglik1pro(loglik1pro),loglik2pro(loglik2pro),loglik3pro(loglik3pro),mcmcrecord(mcmcrecord),data11(data11),data111(data111),data21(data21),ILI(ILI),para(para),para2(para2),loglik1(loglik1),loglik2(loglik2),loglik3(loglik3),temprecord(temprecord),hai_start(hai_start),n_groups(n_groups){}
+:data11out(data11out),data21out(data21out),data11pro(data11pro),data21pro(data21pro),loglik1out(loglik1out),loglik2out(loglik2out),loglik3out(loglik3out),loglik1pro(loglik1pro),loglik2pro(loglik2pro),loglik3pro(loglik3pro),mcmcrecord(mcmcrecord),data11(data11),data111(data111),data21(data21),ILI(ILI),para(para),para2(para2),loglik1(loglik1),loglik2(loglik2),loglik3(loglik3),temprecord(temprecord),rng_draws(rng_draws),hai_start(hai_start),n_groups(n_groups){}
 
 void operator()(std::size_t begin, std::size_t end) {
 
@@ -491,7 +493,7 @@ ifupdate[3]=1;
 
 
 int totalupdate=0;
-int getnumber=1+floor((pow(2,numberifupdate)-1)*R::runif(0,1));   
+int getnumber=1+floor((pow(2,numberifupdate)-1)*rng_draws(b1,0));
 for (b2=3;b2>=0;--b2){
 if (ifupdate[b2]==1){
 ifupdate[b2]=getnumber%2;
@@ -520,13 +522,13 @@ totalprob+=prob[b2];
 
 // here propose the infection time
 
-double gen=R::runif(0,1);
+double gen=rng_draws(b1,1);
 gen*=totalprob;
 for (b2=problength-1;b2>=data111(b1,3);--b2){
 gen-=prob[b2];
 if (gen<0){
 data21pro(b1,4)=b2+1;
-// break out from the loop 
+// break out from the loop
 break;
 }
 }
@@ -537,20 +539,20 @@ proratio+=log(ILI(data21pro(b1,4)-1,data111(b1,12)))-log(ILI(data21(b1,4)-1,data
 
 
 
-// baseline AT update		
-// here the proposal distribution based on the P(baseline) to increase the acceptance 
-// then the proposal and likelihood will cancel out	
-if (ifupdate[0]==1){	
-double titerlevel1=R::runif(0,1);
+// baseline AT update
+// here the proposal distribution based on the P(baseline) to increase the acceptance
+// then the proposal and likelihood will cancel out
+if (ifupdate[0]==1){
+double titerlevel1=rng_draws(b1,2);
 for (b3=9;b3>=0;--b3){
 titerlevel1-=para2[b3+10*(data21(b1,2)>=1)+20*data111(b1,11)];
 if (titerlevel1<0){
 data11pro(b1,8)=b3;
-// break out from the loop 
+// break out from the loop
 break;
 }
 }
-data11pro(b1,8)+=R::runif(0,1);
+data11pro(b1,8)+=rng_draws(b1,3);
 }
 
 // boosting/cross boosting update	
@@ -669,8 +671,8 @@ accept_pro=0;
 mcmcrecord(b1,1)=accept_pro;
 mcmcrecord(b1,2)=loglikratio;	
 mcmcrecord(b1,3)=proratio;
-if (gen_binom(accept_pro)){
-mcmcrecord(b1,0)=1;	
+if (rng_draws(b1,4) < accept_pro){
+mcmcrecord(b1,0)=1;
 // if accept, make the out to the same as the proposal
 for (b2=10;b2>=8;--b2){
 data11out(b1,b2)=data11pro(b1,b2);
@@ -679,14 +681,14 @@ for (b2=6;b2>=4;--b2){
 data21out(b1,b2)=data21pro(b1,b2);
 }
 for (b2=2;b2>=0;--b2){
-loglik1out(b1,b2)=loglik1pro(b1,b2);		
+loglik1out(b1,b2)=loglik1pro(b1,b2);
 }
 for (b2=1;b2>=0;--b2){
-loglik3out(b1,b2)=loglik3pro(b1,b2);	
+loglik3out(b1,b2)=loglik3pro(b1,b2);
 }
 }
 else{
-mcmcrecord(b1,0)=-1;	
+mcmcrecord(b1,0)=-1;
 }
 
 
@@ -746,14 +748,25 @@ int b1;
 
 
 // here put the boosting waning etc
-for (b1=data11.nrow()-1;b1>=0;--b1){  	
+for (b1=data11.nrow()-1;b1>=0;--b1){
 // first impute the basic information here
 data21pro(b1,5)=R::rgamma(para[18+4*(data11(b1,13))+2*data11(b1,14)],1.0);
 data21pro(b1,6)=R::rgamma(para[19+4*(data11(b1,13))+2*data11(b1,14)],1.0);
 }
 
+// pre-generate uniform random draws for thread safety
+// columns: 0=subset selection, 1=infection time, 2=baseline AT level,
+//          3=baseline AT fractional, 4=accept/reject
+int n_ind = data11.nrow();
+NumericMatrix rng_draws(n_ind, 5);
+for (b1 = 0; b1 < n_ind; ++b1){
+for (int j = 0; j < 5; ++j){
+rng_draws(b1, j) = R::runif(0, 1);
+}
+}
+
 // call parallel program
-AllUpdate allupdate(data11out,data21out,data11pro,data21pro,loglik1out,loglik2out,loglik3out,loglik1pro,loglik2pro,loglik3pro,mcmcrecord,data11,data111,data21,ILI,para,para2,loglik1,loglik2,loglik3,temprecord,hai_start,n_groups);
+AllUpdate allupdate(data11out,data21out,data11pro,data21pro,loglik1out,loglik2out,loglik3out,loglik1pro,loglik2pro,loglik3pro,mcmcrecord,data11,data111,data21,ILI,para,para2,loglik1,loglik2,loglik3,temprecord,rng_draws,hai_start,n_groups);
 // call parallelFor to do the work
 parallelFor(0,data21.nrow(),allupdate);
 

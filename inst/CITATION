@@ -1,0 +1,19 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "Reconstructing antibody dynamics to estimate the risk of influenza virus infection",
+  author   = c(
+    person("Tim K.", "Tsang"),
+    person("Ben J.", "Cowling"),
+    person("Vicky J.", "Fang"),
+    person("Kwok-Hung", "Chan"),
+    person("Dennis K. M.", "Ip"),
+    person("Gabriel M.", "Leung"),
+    person("J. S. Malik", "Peiris"),
+    person("Simon", "Cauchemez")
+  ),
+  journal  = "Nature Communications",
+  year     = "2022",
+  volume   = "13",
+  pages    = "1557",
+  doi      = "10.1038/s41467-022-29310-8"
+)
