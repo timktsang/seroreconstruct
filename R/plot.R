@@ -81,10 +81,11 @@ plot_diagnostics <- function(fit, params = NULL) {
 #'
 #' @param fit A \code{seroreconstruct_fit} or \code{seroreconstruct_joint}
 #'   object.
-#' @param id Row index (integer) or subject identifier to plot. If
-#'   \code{subject_ids} was provided to \code{sero_reconstruct()}, or if
-#'   \code{subjects} is supplied here, the value is matched against those IDs
-#'   to find the row. Otherwise treated as a 1-based integer row index.
+#' @param id Row index (integer) or subject identifier to plot. Numeric values
+#'   in the valid row range (1 to N) are treated as 1-based row indices.
+#'   Numeric values outside that range are looked up in \code{subject_ids} or
+#'   \code{subjects} if available. Non-numeric values are always looked up by
+#'   subject identifier.
 #' @param subjects Optional vector of subject identifiers aligned with fit rows.
 #'   Use this when \code{subject_ids} was not provided at fitting time.
 #'   Example: \code{subjects = inputdata$subject_id}.
@@ -116,15 +117,34 @@ plot_trajectory <- function(fit, id = 1, subjects = NULL, n_samples = 100,
   n_ind <- attr(fit, "n_individuals")
 
   # ---- Resolve id to row index ----
-  # Numeric id → always treated as row index (1-based).
+  # Numeric id in valid row range → treated as row index (1-based).
+  # Numeric id out of range → try subject_ids/subjects lookup before erroring.
   # Non-numeric id → looked up in fit$subject_ids or the supplied subjects vector.
+  id_lookup <- if (!is.null(subjects)) subjects else fit$subject_ids
+
   if (is.numeric(id)) {
-    if (length(id) != 1 || id < 1 || id > n_ind || id != round(id)) {
+    if (length(id) != 1 || id != round(id)) {
+      stop("'id' must be a single integer.", call. = FALSE)
+    }
+    if (id >= 1 && id <= n_ind) {
+      # In range: treat as row index
+      id_label <- as.character(id)
+    } else if (!is.null(id_lookup)) {
+      # Out of range: try subject ID lookup
+      row_idx <- match(id, id_lookup)
+      if (is.na(row_idx)) {
+        stop("'id' = ", id, " is not a valid row index (1-", n_ind,
+             ") and was not found in subject IDs. ",
+             "Available IDs (first 10): ",
+             paste(utils::head(as.character(id_lookup), 10), collapse = ", "),
+             call. = FALSE)
+      }
+      id_label <- as.character(id)
+      id <- row_idx
+    } else {
       stop("'id' must be an integer between 1 and ", n_ind, ".", call. = FALSE)
     }
-    id_label <- as.character(id)
   } else {
-    id_lookup <- if (!is.null(subjects)) subjects else fit$subject_ids
     if (is.null(id_lookup)) {
       stop("'id' is not numeric and no subject IDs are available. ",
            "Supply 'subjects' or pass 'subject_ids' to sero_reconstruct().",

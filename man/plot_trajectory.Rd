@@ -20,10 +20,11 @@ plot_trajectory(
 \item{fit}{A \code{seroreconstruct_fit} or \code{seroreconstruct_joint}
 object.}
 
-\item{id}{Row index (integer) or subject identifier to plot. If
-\code{subject_ids} was provided to \code{sero_reconstruct()}, or if
-\code{subjects} is supplied here, the value is matched against those IDs
-to find the row. Otherwise treated as a 1-based integer row index.}
+\item{id}{Row index (integer) or subject identifier to plot. Numeric values
+in the valid row range (1 to N) are treated as 1-based row indices.
+Numeric values outside that range are looked up in \code{subject_ids} or
+\code{subjects} if available. Non-numeric values are always looked up by
+subject identifier.}
 
 \item{subjects}{Optional vector of subject identifiers aligned with fit rows.
 Use this when \code{subject_ids} was not provided at fitting time.
