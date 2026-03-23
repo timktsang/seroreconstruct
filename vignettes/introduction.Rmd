@@ -25,7 +25,7 @@ over time, and measurement error — estimating individual-level infection
 probabilities from hemagglutination inhibition (HAI) titer data.
 
 The statistical framework is described in
-[Tsang et al. (2022) *Nature Communications* 13:1557](https://doi.org/10.1038/s41467-022-29233-8).
+[Tsang et al. (2022) *Nature Communications* 13:1557](https://doi.org/10.1038/s41467-022-29310-8).
 
 ## Input data
 
@@ -185,4 +185,4 @@ To cite seroreconstruct in publications:
 > Malik Peiris JS, Leung GM, Cowling BJ, Cauchemez S. (2022).
 > Reconstructing antibody dynamics to estimate the risk of influenza virus
 > infection. *Nature Communications* 13:1557.
-> doi: [10.1038/s41467-022-29233-8](https://doi.org/10.1038/s41467-022-29233-8)
+> doi: [10.1038/s41467-022-29310-8](https://doi.org/10.1038/s41467-022-29310-8)

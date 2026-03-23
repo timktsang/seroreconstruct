@@ -26,7 +26,7 @@ The model accounts for:
 - Heterogeneity in baseline titers and infection risk
 
 The full statistical details are described in
-[Tsang et al. (2022) *Nature Communications* 13:1557](https://doi.org/10.1038/s41467-022-29233-8).
+[Tsang et al. (2022) *Nature Communications* 13:1557](https://doi.org/10.1038/s41467-022-29310-8).
 
 ## Notation
 
@@ -155,7 +155,7 @@ Tsang TK, Perera RAPM, Fang VJ, Wong JY, Shiu EY, So HC, Ip DKM,
 Malik Peiris JS, Leung GM, Cowling BJ, Cauchemez S. (2022).
 Reconstructing antibody dynamics to estimate the risk of influenza virus
 infection. *Nature Communications* 13:1557.
-doi: [10.1038/s41467-022-29233-8](https://doi.org/10.1038/s41467-022-29233-8)
+doi: [10.1038/s41467-022-29310-8](https://doi.org/10.1038/s41467-022-29310-8)
 
 Geyer CJ. (1992). Practical Markov chain Monte Carlo. *Statistical Science*
 7(4):473–483.

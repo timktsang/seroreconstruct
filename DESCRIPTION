@@ -14,7 +14,7 @@ Description: A Bayesian framework for inferring influenza infection status from
     probabilities, antibody boosting and waning after infection, and baseline HAI
     titer distributions via MCMC. Supports multi-season analysis and subgroup
     comparisons via a group_by interface. See Tsang et al. (2022)
-    <doi:10.1038/s41467-022-29233-8> for methodological details.
+    <doi:10.1038/s41467-022-29310-8> for methodological details.
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: TRUE

@@ -6,7 +6,7 @@
 \alias{seroreconstruct-package}
 \title{seroreconstruct: Reconstructing Antibody Dynamics to Estimate the Risk of Influenza Virus Infection}
 \description{
-A Bayesian framework for inferring influenza infection status from serial antibody measurements. Jointly estimates season-specific infection probabilities, antibody boosting and waning after infection, and baseline HAI titer distributions via MCMC. Supports multi-season analysis and subgroup comparisons via a group_by interface. See Tsang et al. (2022) \doi{10.1038/s41467-022-29233-8} for methodological details.
+A Bayesian framework for inferring influenza infection status from serial antibody measurements. Jointly estimates season-specific infection probabilities, antibody boosting and waning after infection, and baseline HAI titer distributions via MCMC. Supports multi-season analysis and subgroup comparisons via a group_by interface. See Tsang et al. (2022) \doi{10.1038/s41467-022-29310-8} for methodological details.
 }
 \seealso{
 Useful links:
