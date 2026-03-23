@@ -1,5 +1,5 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- This README is maintained directly. Do not regenerate from README.Rmd. -->
 
 # seroreconstruct
 
@@ -21,33 +21,21 @@ hemagglutination-inhibiting (HAI) titers to infection risk.
 - **Subgroup comparisons** via `group_by` — fit independent MCMCs for age groups, vaccination status, or other strata
 - **Shared parameters** via `shared` — run a joint model that shares measurement error and/or boosting/waning across groups while estimating group-specific infection risk
 - **S3 classes** with `print()` and `summary()` methods for clean output
-- **Visualization**:
-  - `plot_trajectory()` — individual antibody trajectory with posterior infection/uninfection paths (Figure 1B style)
-  - `plot_boosting()` — violin plots of posterior fold-rise in antibody titer (Figure 1C style)
-  - `plot_waning()` — waning curves with credible bands showing antibody decay over time (Figure 1D style)
-  - `plot_infection_prob()` — forest plot of infection probabilities with credible intervals, supporting multi-group comparison
-  - `plot_diagnostics()` — MCMC trace and density plots for convergence assessment
-- **Parameter tables** via `table_parameters()` and `table_infections()`
+- **Publication-ready plots** — antibody trajectories, boosting/waning distributions, infection probability forest plots, MCMC diagnostics
+- **Summary tables** — parameter estimates with credible intervals, per-individual infection probabilities
 - **Subject ID tracking** — pass `subject_ids` to `sero_reconstruct()` for ID-based individual lookup in plots
 - **Simulation** — generate synthetic datasets for validation and power analysis
 
 ## Installation
 
-1.  Install [R][r-project]
-
-2.  Install the development version of seroreconstruct from
-    [GitHub](https://github.com/timktsang/seroreconstruct):
-
-``` r
+```r
+# install.packages("devtools")
 devtools::install_github("timktsang/seroreconstruct")
-library(seroreconstruct)
 ```
 
 ## Quick start
 
-### Basic usage (single season)
-
-``` r
+```r
 library(seroreconstruct)
 
 # Load example data
@@ -62,11 +50,72 @@ fit <- sero_reconstruct(inputdata, flu_activity,
 summary(fit)
 ```
 
-### Subgroup analysis
+## Visualization
+
+### Antibody trajectory
+
+```r
+plot_trajectory(fit, id = 1)
+```
+
+<img src="man/figures/trajectory.png" width="600"/>
+
+Red lines show posterior trajectories with infection; blue lines show trajectories without infection. Black dots are observed HAI titers.
+
+### Boosting distribution
+
+```r
+plot_boosting(fit)
+```
+
+<img src="man/figures/boosting.png" width="500"/>
+
+Violin plots of the posterior fold-rise in antibody titer after infection, with median crossbar and 95% credible interval.
+
+### Waning curves
+
+```r
+plot_waning(fit)
+```
+
+<img src="man/figures/waning.png" width="500"/>
+
+Posterior median and 95% credible band for antibody remaining over time since infection.
+
+### Infection probability
+
+```r
+plot_infection_prob(fit,
+  labels = c("Children", "Adults", "Older adults"))
+```
+
+<img src="man/figures/infection_prob.png" width="700"/>
+
+Forest plot of posterior infection probabilities. Supports combining multiple fits with section headers for multi-group comparisons.
+
+### MCMC diagnostics
+
+```r
+plot_diagnostics(fit)
+```
+
+<img src="man/figures/diagnostics.png" width="650"/>
+
+## Tables
+
+```r
+# Parameter estimates with credible intervals
+table_parameters(fit)
+
+# Per-individual infection probabilities
+table_infections(fit)
+```
+
+## Subgroup analysis
 
 Fit separate models for each age group:
 
-``` r
+```r
 fit_by_age <- sero_reconstruct(inputdata, flu_activity,
                                n_iteration = 20000, burnin = 10000,
                                thinning = 5, group_by = ~age_group)
@@ -78,14 +127,14 @@ summary(fit_by_age)
 summary(fit_by_age[["1"]])
 ```
 
-### Joint model with shared parameters
+## Joint model with shared parameters
 
 When comparing groups (e.g., vaccinated vs unvaccinated), some parameters
 are biologically shared (measurement error, antibody dynamics) while
 infection risk differs between groups. Use `shared` to run a single joint
 MCMC that shares the specified parameters:
 
-``` r
+```r
 # Share measurement error and boosting/waning across vaccine groups
 fit_joint <- sero_reconstruct(inputdata, flu_activity,
                               n_iteration = 20000, burnin = 10000,
@@ -105,11 +154,11 @@ Available shared parameter types:
 
 Infection probability and HAI protection are always group-specific.
 
-### Multi-season analysis
+## Multi-season analysis
 
 Add a `season` column (0-indexed integer) to your input data:
 
-``` r
+```r
 # Stack data from multiple seasons
 inputdata$season <- 0L  # single season example
 
@@ -120,11 +169,11 @@ fit_multi <- sero_reconstruct(multi_season_data, flu_activity,
                               thinning = 5)
 ```
 
-### Simulation
+## Simulation
 
 Generate synthetic data for validation:
 
-``` r
+```r
 data("para1")  # example parameter vector (single season)
 data("para2")  # baseline HAI titer distribution
 
