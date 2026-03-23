@@ -143,13 +143,13 @@ appropriate burn-in and thinning.</p>
 <span><span class="co">#&gt; 2000</span></span>
 <span><span class="co">#&gt; 3000</span></span>
 <span><span class="co">#&gt; 4000</span></span>
-<span><span class="co">#&gt; MCMC complete in 66 seconds. Use summary() to view estimates.</span></span>
+<span><span class="co">#&gt; MCMC complete in 60 seconds. Use summary() to view estimates.</span></span>
 <span><span class="va">fit</span></span>
 <span><span class="co">#&gt; seroreconstruct fit</span></span>
 <span><span class="co">#&gt;   Individuals: 1753 </span></span>
 <span><span class="co">#&gt;   Age groups: 3 </span></span>
 <span><span class="co">#&gt;   Posterior samples: 3000 </span></span>
-<span><span class="co">#&gt;   Runtime: 66 seconds</span></span>
+<span><span class="co">#&gt;   Runtime: 60 seconds</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Use summary() to extract model estimates.</span></span></code></pre></div>
 </div>
@@ -178,22 +178,22 @@ credible intervals:</p>
 <span><span class="co">#&gt;      Relative risk for children with pre-epidemic HAI titer &lt; 10 (Ref: Adults with pre-epidemic HAI titer &lt; 10)</span></span>
 <span><span class="co">#&gt;  Relative risk for older adults with pre-epidemic HAI titer &lt; 10 (Ref: Adults with pre-epidemic HAI titer &lt; 10)</span></span>
 <span><span class="co">#&gt;  Point estimate Lower bound Upper bound</span></span>
-<span><span class="co">#&gt;            1.39        0.84        2.19</span></span>
-<span><span class="co">#&gt;            3.50        4.68        2.77</span></span>
-<span><span class="co">#&gt;           11.85        8.01       15.85</span></span>
-<span><span class="co">#&gt;            1.05        1.02        1.08</span></span>
-<span><span class="co">#&gt;            7.54        6.02        9.81</span></span>
-<span><span class="co">#&gt;            1.10        1.02        1.21</span></span>
-<span><span class="co">#&gt;            0.18        0.15        0.21</span></span>
-<span><span class="co">#&gt;            0.20        0.16        0.23</span></span>
-<span><span class="co">#&gt;            0.14        0.09        0.18</span></span>
-<span><span class="co">#&gt;            0.46        0.37        0.54</span></span>
-<span><span class="co">#&gt;            0.30        0.25        0.35</span></span>
+<span><span class="co">#&gt;            1.45        0.85        2.22</span></span>
+<span><span class="co">#&gt;            3.35        3.98        2.81</span></span>
+<span><span class="co">#&gt;           12.13        9.23       17.22</span></span>
+<span><span class="co">#&gt;            1.05        1.03        1.10</span></span>
+<span><span class="co">#&gt;            7.63        5.99        9.74</span></span>
+<span><span class="co">#&gt;            1.14        1.08        1.22</span></span>
+<span><span class="co">#&gt;            0.17        0.14        0.21</span></span>
+<span><span class="co">#&gt;            0.20        0.17        0.23</span></span>
+<span><span class="co">#&gt;            0.13        0.09        0.18</span></span>
+<span><span class="co">#&gt;            0.47        0.37        0.56</span></span>
+<span><span class="co">#&gt;            0.32        0.27        0.38</span></span>
 <span><span class="co">#&gt;            0.21        0.14        0.29</span></span>
-<span><span class="co">#&gt;            0.93        0.73        1.16</span></span>
-<span><span class="co">#&gt;            1.52        1.21        1.88</span></span>
-<span><span class="co">#&gt;            0.70        0.44        1.01</span></span>
-<span><span class="co">#&gt;            0.71        0.46        1.01</span></span></code></pre></div>
+<span><span class="co">#&gt;            0.88        0.68        1.10</span></span>
+<span><span class="co">#&gt;            1.48        1.16        1.83</span></span>
+<span><span class="co">#&gt;            0.66        0.42        0.93</span></span>
+<span><span class="co">#&gt;            0.68        0.44        0.93</span></span></code></pre></div>
 <p>The summary table includes:</p>
 <ul>
 <li>
@@ -259,25 +259,25 @@ frames:</p>
 <code class="sourceCode R"><span><span class="co"># Model parameter estimates</span></span>
 <span><span class="fu"><a href="../reference/table_parameters.html">table_parameters</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                Parameter         Mean       Median         Lower        Upper</span></span>
-<span><span class="co">#&gt; 1           random_error  0.001391274  0.001311187  0.0008353381  0.002187266</span></span>
-<span><span class="co">#&gt; 2          twofold_error  1.965298908  1.982778958  1.6755097048  2.200134255</span></span>
-<span><span class="co">#&gt; 3      boosting_children  3.566586079  3.603997907  3.0026257537  3.986322641</span></span>
-<span><span class="co">#&gt; 4        waning_children  0.065754507  0.060999541  0.0303753977  0.111859491</span></span>
-<span><span class="co">#&gt; 5        boosting_adults  2.915245024  2.904395583  2.5887697318  3.294442179</span></span>
-<span><span class="co">#&gt; 6          waning_adults  0.137211200  0.145674952  0.0339864653  0.277415283</span></span>
-<span><span class="co">#&gt; 7      inf_prob_children  0.661976144  0.657424677  0.5042663026  0.836721993</span></span>
-<span><span class="co">#&gt; 8        inf_prob_adults  0.389977462  0.388981706  0.3164940126  0.472339793</span></span>
-<span><span class="co">#&gt; 9  inf_prob_older_adults  0.259854863  0.258509512  0.1637551599  0.367704281</span></span>
-<span><span class="co">#&gt; 10              hai_coef -0.562285155 -0.565926789 -0.7511507224 -0.369922560</span></span>
+<span><span class="co">#&gt; 1           random_error  0.001450223  0.001388076  0.0008462795  0.002218252</span></span>
+<span><span class="co">#&gt; 2          twofold_error  2.008738615  2.010738885  1.8378675268  2.186355982</span></span>
+<span><span class="co">#&gt; 3      boosting_children  3.600358762  3.582069469  3.2061714777  4.106036402</span></span>
+<span><span class="co">#&gt; 4        waning_children  0.069878325  0.060185403  0.0371668547  0.140166851</span></span>
+<span><span class="co">#&gt; 5        boosting_adults  2.932225830  2.928178292  2.5827597454  3.283480015</span></span>
+<span><span class="co">#&gt; 6          waning_adults  0.187599878  0.187639412  0.1088210869  0.281670227</span></span>
+<span><span class="co">#&gt; 7      inf_prob_children  0.686020798  0.685944341  0.4903568150  0.896890795</span></span>
+<span><span class="co">#&gt; 8        inf_prob_adults  0.412830382  0.409149248  0.3379302686  0.510390956</span></span>
+<span><span class="co">#&gt; 9  inf_prob_older_adults  0.260253578  0.258992507  0.1621640714  0.372148503</span></span>
+<span><span class="co">#&gt; 10              hai_coef -0.618944620 -0.607402701 -0.8497302574 -0.418113147</span></span>
 <span></span>
 <span><span class="co"># Per-individual infection probabilities</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/table_infections.html">table_infections</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   Individual Infection_prob Infection_time_mean Baseline_titer_mean</span></span>
-<span><span class="co">#&gt; 1          1         0.0887               944.5                0.47</span></span>
-<span><span class="co">#&gt; 2          2         0.0000                  NA                0.47</span></span>
-<span><span class="co">#&gt; 3          3         0.0217               919.8                0.48</span></span>
+<span><span class="co">#&gt; 1          1         0.0000                  NA                0.49</span></span>
+<span><span class="co">#&gt; 2          2         0.0110               932.4                0.50</span></span>
+<span><span class="co">#&gt; 3          3         0.0437               938.2                0.48</span></span>
 <span><span class="co">#&gt; 4          4         0.0000                  NA                4.52</span></span>
-<span><span class="co">#&gt; 5          5         0.0000                  NA                0.54</span></span>
+<span><span class="co">#&gt; 5          5         0.0000                  NA                0.49</span></span>
 <span><span class="co">#&gt; 6          6         0.0000                  NA                0.50</span></span></code></pre></div>
 </div>
 <div class="section level2">

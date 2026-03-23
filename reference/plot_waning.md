@@ -49,7 +49,7 @@ Invisible `NULL`. Called for its side effect of producing a plot.
 fit <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
 #> 1000
-#> MCMC complete in 27 seconds. Use summary() to view estimates.
+#> MCMC complete in 25 seconds. Use summary() to view estimates.
 plot_waning(fit)
 
 # }
