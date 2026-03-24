@@ -33,7 +33,7 @@ A data frame with columns: Parameter, Mean, Median, Lower, Upper.
 fit <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
 #> 1000
-#> MCMC complete in 29 seconds. Use summary() to view estimates.
+#> MCMC complete in 28 seconds. Use summary() to view estimates.
 table_parameters(fit)
 #>                Parameter         Mean       Median        Lower        Upper
 #> 1           random_error  0.003412853  0.003352479  0.001830899  0.005457652

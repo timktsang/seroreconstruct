@@ -29,7 +29,7 @@ index), `Infection_prob` (posterior mean probability of infection),
 fit <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
 #> 1000
-#> MCMC complete in 27 seconds. Use summary() to view estimates.
+#> MCMC complete in 28 seconds. Use summary() to view estimates.
 head(table_infections(fit))
 #>   Individual Infection_prob Infection_time_mean Baseline_titer_mean
 #> 1          1              0                  NA                0.47
