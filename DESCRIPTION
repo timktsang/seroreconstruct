@@ -1,7 +1,7 @@
 Package: seroreconstruct
 Type: Package
 Title: Reconstructing Antibody Dynamics to Estimate the Risk of Influenza Virus Infection
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: 
     c(person(given = "Tim",
              family = "Tsang",

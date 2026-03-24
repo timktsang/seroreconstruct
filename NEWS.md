@@ -1,3 +1,13 @@
+# seroreconstruct 1.1.2
+
+## Bug fixes
+
+* Added LAPACK/BLAS linkage to `src/Makevars` for Linux/Debian, fixing
+  `undefined symbol: dpotrf_` installation failure on CRAN's Debian
+  (clang-21) pre-test environment.
+
+---
+
 # seroreconstruct 1.1.1
 
 ## Bug fixes

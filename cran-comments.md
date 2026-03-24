@@ -1,12 +1,16 @@
-# CRAN submission comments — seroreconstruct 1.1.1
+# CRAN submission comments — seroreconstruct 1.1.2
 
 ## Resubmission
 
-This is a resubmission addressing CRAN pre-test feedback on v1.1.0:
+This is a resubmission addressing CRAN pre-test feedback on v1.1.1:
 
-- **Fixed**: Variable Length Arrays (VLA) in C++ replaced with `std::vector<double>` (3 occurrences in `mcmc_function.cpp`). This resolves the `-Wvla` warning on Windows/GCC.
-- **Fixed**: Removed obsolete `CXX_STD = CXX11` from `Makevars` and `Makevars.win`, and removed `C++11` from `SystemRequirements`. The package compiles fine under the default C++ standard.
-- **Noted**: "Misspelled" words (HAI, Tsang, et, al, titer) are all correct — HAI is a standard immunology abbreviation (hemagglutination inhibition), titer is the standard US English spelling, and Tsang et al. is an author citation.
+- **Fixed**: Added `$(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)` to `src/Makevars` for
+  Unix/Linux. This resolves the `undefined symbol: dpotrf_` installation failure
+  on the Debian (clang-21) pre-test environment. The LAPACK linkage was already
+  present in `Makevars.win` but was missing from the Unix Makevars.
+- **Noted**: "Misspelled" words (HAI, Tsang, et, al, titer) are all correct —
+  HAI is a standard immunology abbreviation (hemagglutination inhibition), titer
+  is the standard US English spelling, and Tsang et al. is an author citation.
 
 ## R CMD check results
 
