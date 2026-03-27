@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Detect platform and set LAPACK linkage accordingly.
+# macOS links LAPACK/BLAS via the R framework automatically;
+# adding them again causes a double-link crash (Abort trap: 6).
+# Linux/Debian (e.g., CRAN's clang-21 build) needs explicit linkage.
+
+case "$(uname -s)" in
+  Darwin)
+    LAPACK_LIBS=""
+    ;;
+  *)
+    LAPACK_LIBS='$(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)'
+    ;;
+esac
+
+sed "s|@LAPACK_LIBS@|${LAPACK_LIBS}|g" src/Makevars.in > src/Makevars

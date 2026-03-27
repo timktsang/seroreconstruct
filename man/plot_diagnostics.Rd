@@ -27,6 +27,7 @@ Density plots show the marginal posterior with 95\% credible interval bounds
 \donttest{
 fit <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
-plot_diagnostics(fit)
+# Plot selected parameters (use params = NULL for all)
+plot_diagnostics(fit, params = c("random_error", "twofold_error"))
 }
 }
