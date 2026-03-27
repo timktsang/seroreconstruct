@@ -11,6 +11,8 @@ NULL
 
 .onLoad <- function(libname, pkgname) {
   # CRAN policy: packages must not use more than 2 threads during checks.
-  # Users can override via RCPP_PARALLEL_NUM_THREADS environment variable.
-  RcppParallel::setThreadOptions(numThreads = 2L)
+  # Respect user override via RCPP_PARALLEL_NUM_THREADS if already set.
+  if (Sys.getenv("RCPP_PARALLEL_NUM_THREADS") == "") {
+    RcppParallel::setThreadOptions(numThreads = 2L)
+  }
 }

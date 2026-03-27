@@ -10,3 +10,4 @@
 ^pkgdown$
 ^cran-comments\.md$
 ^LICENSE\.md$
+^tests/testthat/Rplots\.pdf$

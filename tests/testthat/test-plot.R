@@ -5,6 +5,8 @@ test_that("plot_diagnostics runs without error", {
   fit <- sero_reconstruct(inputdata, flu_activity,
                           n_iteration = 200, burnin = 100, thinning = 1)
 
+  pdf(NULL)
+  on.exit(dev.off(), add = TRUE)
   expect_no_error(plot_diagnostics(fit))
 })
 
@@ -15,6 +17,8 @@ test_that("plot_diagnostics works with param subset", {
   fit <- sero_reconstruct(inputdata, flu_activity,
                           n_iteration = 200, burnin = 100, thinning = 1)
 
+  pdf(NULL)
+  on.exit(dev.off(), add = TRUE)
   expect_no_error(plot_diagnostics(fit, params = c("random_error", "twofold_error")))
 })
 
@@ -48,6 +52,8 @@ test_that("plot_trajectory runs without error", {
   fit <- sero_reconstruct(inputdata, flu_activity,
                           n_iteration = 200, burnin = 100, thinning = 1)
 
+  pdf(NULL)
+  on.exit(dev.off(), add = TRUE)
   expect_no_error(plot_trajectory(fit, id = 1))
 })
 
@@ -58,6 +64,8 @@ test_that("plot_trajectory works with custom arguments", {
   fit <- sero_reconstruct(inputdata, flu_activity,
                           n_iteration = 200, burnin = 100, thinning = 1)
 
+  pdf(NULL)
+  on.exit(dev.off(), add = TRUE)
   expect_no_error(plot_trajectory(fit, id = 50, n_samples = 20,
                                   main = "Custom title", show_legend = FALSE))
 })
@@ -98,6 +106,8 @@ test_that("plot_trajectory works with character subject_ids", {
                           n_iteration = 200, burnin = 100, thinning = 1,
                           subject_ids = char_ids)
 
+  pdf(NULL)
+  on.exit(dev.off(), add = TRUE)
   # Character lookup should work
   expect_no_error(plot_trajectory(fit, id = "S1"))
   # Row index should still work
@@ -115,6 +125,8 @@ test_that("plot_trajectory works with numeric subject_ids out of range", {
                           n_iteration = 200, burnin = 100, thinning = 1,
                           subject_ids = num_ids)
 
+  pdf(NULL)
+  on.exit(dev.off(), add = TRUE)
   # Numeric ID out of row range should trigger lookup
   expect_no_error(plot_trajectory(fit, id = 10001))
   # Row index should still work
@@ -131,6 +143,8 @@ test_that("plot_trajectory works with subjects argument", {
   fit <- sero_reconstruct(inputdata, flu_activity,
                           n_iteration = 200, burnin = 100, thinning = 1)
 
+  pdf(NULL)
+  on.exit(dev.off(), add = TRUE)
   # subjects argument should enable lookup
   expect_no_error(plot_trajectory(fit, id = "EXT1", subjects = ext_ids))
 })
@@ -167,6 +181,8 @@ test_that("plot_trajectory works in multi-panel layout", {
   fit <- sero_reconstruct(inputdata, flu_activity,
                           n_iteration = 200, burnin = 100, thinning = 1)
 
+  pdf(NULL)
+  on.exit(dev.off(), add = TRUE)
   par(mfrow = c(1, 2))
   expect_no_error({
     plot_trajectory(fit, id = 1, show_legend = FALSE)
