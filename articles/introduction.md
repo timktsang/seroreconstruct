@@ -73,13 +73,13 @@ fit <- sero_reconstruct(inputdata, flu_activity,
 #> 2000
 #> 3000
 #> 4000
-#> MCMC complete in 68 seconds. Use summary() to view estimates.
+#> MCMC complete in 63 seconds. Use summary() to view estimates.
 fit
 #> seroreconstruct fit
 #>   Individuals: 1753 
 #>   Age groups: 3 
 #>   Posterior samples: 3000 
-#>   Runtime: 68 seconds
+#>   Runtime: 63 seconds
 #> 
 #> Use summary() to extract model estimates.
 ```
@@ -163,12 +163,16 @@ plot_trajectory(fit, id = 1)
 ### Boosting and waning
 
 ``` r
-par(mfrow = c(1, 2))
+oldpar <- par(mfrow = c(1, 2))
 plot_boosting(fit)
 plot_waning(fit)
 ```
 
 ![](introduction_files/figure-html/boosting-waning-1.png)
+
+``` r
+par(oldpar)
+```
 
 ### Infection probabilities
 

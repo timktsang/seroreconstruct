@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">seroreconstruct</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -136,7 +136,7 @@ from the fit object (e.g., <code>fit$posterior_model_parameter</code>).</p>
 <span class="r-in"><span><span class="va">a1</span> <span class="op">&lt;-</span> <span class="fu">sero_reconstruct</span><span class="op">(</span><span class="va">inputdata</span>, <span class="va">flu_activity</span>,</span></span>
 <span class="r-in"><span>                        n_iteration <span class="op">=</span> <span class="fl">2000</span>, burnin <span class="op">=</span> <span class="fl">1000</span>, thinning <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1000</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> MCMC complete in 27 seconds. Use summary() to view estimates.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> MCMC complete in 26 seconds. Use summary() to view estimates.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">a1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                                        Variable</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                                Random error (%)</span>
@@ -156,22 +156,22 @@ from the fit object (e.g., <code>fit$posterior_model_parameter</code>).</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Relative risk for children with pre-epidemic HAI titer &lt; 10 (Ref: Adults with pre-epidemic HAI titer &lt; 10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Relative risk for older adults with pre-epidemic HAI titer &lt; 10 (Ref: Adults with pre-epidemic HAI titer &lt; 10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Point estimate Lower bound Upper bound</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            2.01        1.42        2.81</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            3.60        4.27        2.94</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            6.05        4.44        7.99</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            1.03        1.01        1.07</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            6.41        4.78        8.32</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            1.09        1.06        1.14</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0.20        0.17        0.23</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0.21        0.18        0.25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            2.51        1.55        3.21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            3.09        3.74        2.41</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            8.29        5.51       11.25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            1.07        1.05        1.08</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            6.63        5.44        8.06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            1.11        1.07        1.20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.19        0.15        0.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.19        0.16        0.23</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            0.13        0.09        0.18</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0.45        0.38        0.55</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0.30        0.26        0.35</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.42        0.34        0.51</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.28        0.24        0.33</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            0.19        0.13        0.26</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0.96        0.76        1.19</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            1.50        1.21        1.83</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0.63        0.41        0.90</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0.64        0.42        0.91</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.97        0.76        1.20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            1.51        1.19        1.89</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.67        0.44        0.95</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.68        0.45        0.96</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

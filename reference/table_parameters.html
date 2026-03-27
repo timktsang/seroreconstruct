@@ -9,7 +9,7 @@ active model parameters."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">seroreconstruct</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,19 +72,19 @@ for a 95% interval.</p></dd>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="sero_reconstruct.html">sero_reconstruct</a></span><span class="op">(</span><span class="va">inputdata</span>, <span class="va">flu_activity</span>,</span></span>
 <span class="r-in"><span>                        n_iteration <span class="op">=</span> <span class="fl">2000</span>, burnin <span class="op">=</span> <span class="fl">1000</span>, thinning <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1000</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> MCMC complete in 28 seconds. Use summary() to view estimates.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> MCMC complete in 26 seconds. Use summary() to view estimates.</span>
 <span class="r-in"><span><span class="fu">table_parameters</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                Parameter         Mean       Median        Lower        Upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1           random_error  0.003412853  0.003352479  0.001830899  0.005457652</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2          twofold_error  2.024316610  2.037772925  1.777694542  2.238514748</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      boosting_children  2.725591888  2.748241417  1.854077602  3.484546466</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4        waning_children  0.120885888  0.115391366  0.059849537  0.201081699</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5        boosting_adults  2.488394977  2.483463123  2.021878424  2.981259657</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6          waning_adults  0.055891705  0.058434216  0.034719929  0.076565611</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7      inf_prob_children  0.542112263  0.542481295  0.367732314  0.745727722</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8        inf_prob_adults  0.354311038  0.356557796  0.272281582  0.429585140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  inf_prob_older_adults  0.254116503  0.248833975  0.166219692  0.383262753</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10              hai_coef -0.488309214 -0.492834293 -0.653790639 -0.323175360</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1           random_error  0.001897294  0.001835798  0.001206076  0.002943005</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          twofold_error  1.967354047  1.971187224  1.797104254  2.168819614</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      boosting_children  3.229963924  3.281385035  2.600976635  3.811797935</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        waning_children  0.054187302  0.053413644  0.020274494  0.093470877</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5        boosting_adults  2.886245848  2.890986600  2.573971729  3.177674317</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6          waning_adults  0.144958376  0.148381843  0.052920826  0.220790151</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      inf_prob_children  0.599507748  0.607457707  0.411553704  0.794285807</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8        inf_prob_adults  0.362219144  0.361593751  0.287874719  0.442789319</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  inf_prob_older_adults  0.257929407  0.253914989  0.166606062  0.368575122</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10              hai_coef -0.486856121 -0.513136047 -0.689081070 -0.269118400</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

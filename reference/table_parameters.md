@@ -33,18 +33,18 @@ A data frame with columns: Parameter, Mean, Median, Lower, Upper.
 fit <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
 #> 1000
-#> MCMC complete in 28 seconds. Use summary() to view estimates.
+#> MCMC complete in 26 seconds. Use summary() to view estimates.
 table_parameters(fit)
 #>                Parameter         Mean       Median        Lower        Upper
-#> 1           random_error  0.003412853  0.003352479  0.001830899  0.005457652
-#> 2          twofold_error  2.024316610  2.037772925  1.777694542  2.238514748
-#> 3      boosting_children  2.725591888  2.748241417  1.854077602  3.484546466
-#> 4        waning_children  0.120885888  0.115391366  0.059849537  0.201081699
-#> 5        boosting_adults  2.488394977  2.483463123  2.021878424  2.981259657
-#> 6          waning_adults  0.055891705  0.058434216  0.034719929  0.076565611
-#> 7      inf_prob_children  0.542112263  0.542481295  0.367732314  0.745727722
-#> 8        inf_prob_adults  0.354311038  0.356557796  0.272281582  0.429585140
-#> 9  inf_prob_older_adults  0.254116503  0.248833975  0.166219692  0.383262753
-#> 10              hai_coef -0.488309214 -0.492834293 -0.653790639 -0.323175360
+#> 1           random_error  0.001897294  0.001835798  0.001206076  0.002943005
+#> 2          twofold_error  1.967354047  1.971187224  1.797104254  2.168819614
+#> 3      boosting_children  3.229963924  3.281385035  2.600976635  3.811797935
+#> 4        waning_children  0.054187302  0.053413644  0.020274494  0.093470877
+#> 5        boosting_adults  2.886245848  2.890986600  2.573971729  3.177674317
+#> 6          waning_adults  0.144958376  0.148381843  0.052920826  0.220790151
+#> 7      inf_prob_children  0.599507748  0.607457707  0.411553704  0.794285807
+#> 8        inf_prob_adults  0.362219144  0.361593751  0.287874719  0.442789319
+#> 9  inf_prob_older_adults  0.257929407  0.253914989  0.166606062  0.368575122
+#> 10              hai_coef -0.486856121 -0.513136047 -0.689081070 -0.269118400
 # }
 ```
