@@ -205,7 +205,7 @@ sero_reconstruct <- function(inputdata, inputILI, n_iteration = 2000, burnin = 1
 #'   inferred from the data.
 #' @return A data frame of model estimates (invisibly).
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' a1 <- sero_reconstruct(inputdata, flu_activity,
 #'                         n_iteration = 2000, burnin = 1000, thinning = 1)
 #' fitted_result <- output_model_estimate(a1)  # deprecated, use summary(a1)

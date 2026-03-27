@@ -21,7 +21,7 @@ A data frame of model estimates (invisibly).
 \code{output_model_estimate} is deprecated; use \code{summary()} instead.
 }
 \examples{
-\dontrun{
+\donttest{
 a1 <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
 fitted_result <- output_model_estimate(a1)  # deprecated, use summary(a1)

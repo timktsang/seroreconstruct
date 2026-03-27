@@ -20,6 +20,7 @@
 #'
 #' @param x A \code{seroreconstruct_fit} object.
 #' @param ... Additional arguments (ignored).
+#' @return The input object \code{x}, invisibly.
 #' @export
 print.seroreconstruct_fit <- function(x, ...) {
   cat("seroreconstruct fit\n")
@@ -188,6 +189,7 @@ summary.seroreconstruct_fit <- function(object, period, ...) {
 #' @param x A \code{summary.seroreconstruct_fit} object.
 #' @param digits Number of decimal places for rounding. Default 2.
 #' @param ... Additional arguments (ignored).
+#' @return The input object \code{x}, invisibly.
 #' @method print summary.seroreconstruct_fit
 #' @export
 print.summary.seroreconstruct_fit <- function(x, digits = 2, ...) {
@@ -213,6 +215,7 @@ print.summary.seroreconstruct_fit <- function(x, digits = 2, ...) {
 #'
 #' @param x A \code{seroreconstruct_multi} object.
 #' @param ... Additional arguments (ignored).
+#' @return The input object \code{x}, invisibly.
 #' @export
 print.seroreconstruct_multi <- function(x, ...) {
   group_labels <- attr(x, "group_labels")
@@ -267,6 +270,7 @@ summary.seroreconstruct_multi <- function(object, period, ...) {
 #' @param x A \code{summary.seroreconstruct_multi} object.
 #' @param digits Number of decimal places for rounding. Default 2.
 #' @param ... Additional arguments (ignored).
+#' @return The input object \code{x}, invisibly.
 #' @method print summary.seroreconstruct_multi
 #' @export
 print.summary.seroreconstruct_multi <- function(x, digits = 2, ...) {
@@ -315,6 +319,7 @@ print.summary.seroreconstruct_multi <- function(x, digits = 2, ...) {
 #'
 #' @param x A \code{seroreconstruct_joint} object.
 #' @param ... Additional arguments (ignored).
+#' @return The input object \code{x}, invisibly.
 #' @export
 print.seroreconstruct_joint <- function(x, ...) {
   cat("seroreconstruct joint fit\n")
@@ -456,6 +461,7 @@ summary.seroreconstruct_joint <- function(object, period, ...) {
 #' @param x A \code{summary.seroreconstruct_joint} object.
 #' @param digits Number of decimal places for rounding. Default 2.
 #' @param ... Additional arguments (ignored).
+#' @return The input object \code{x}, invisibly.
 #' @method print summary.seroreconstruct_joint
 #' @export
 print.summary.seroreconstruct_joint <- function(x, digits = 2, ...) {

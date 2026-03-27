@@ -24,7 +24,7 @@ Density plots show the marginal posterior with 95\% credible interval bounds
 (blue dashed lines).
 }
 \examples{
-\dontrun{
+\donttest{
 fit <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
 plot_diagnostics(fit)

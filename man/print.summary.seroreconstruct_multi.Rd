@@ -13,6 +13,9 @@
 
 \item{...}{Additional arguments (ignored).}
 }
+\value{
+The input object \code{x}, invisibly.
+}
 \description{
 Print method for summary.seroreconstruct_multi
 }

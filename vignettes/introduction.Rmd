@@ -108,9 +108,10 @@ plot_trajectory(fit, id = 1)
 ### Boosting and waning
 
 ```{r boosting-waning, fig.height = 4, fig.width = 9}
-par(mfrow = c(1, 2))
+oldpar <- par(mfrow = c(1, 2))
 plot_boosting(fit)
 plot_waning(fit)
+par(oldpar)
 ```
 
 ### Infection probabilities

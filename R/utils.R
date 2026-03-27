@@ -60,6 +60,8 @@
 #' @param ncol Number of columns in the plot layout.
 #' @keywords internal
 .plot_traces <- function(mcmc_matrix, nrow, ncol) {
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
   layout(matrix(seq_len(nrow * ncol), nrow = nrow, byrow = TRUE))
   par(mar = c(2, 4, 1, 1))
   for (i in seq_len(ncol(mcmc_matrix))) {

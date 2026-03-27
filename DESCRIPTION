@@ -1,7 +1,7 @@
 Package: seroreconstruct
 Type: Package
 Title: Reconstructing Antibody Dynamics to Estimate the Risk of Influenza Virus Infection
-Version: 1.1.2
+Version: 1.1.3
 Authors@R: 
     c(person(given = "Tim",
              family = "Tsang",
@@ -11,8 +11,9 @@ Authors@R:
 Maintainer: Tim Tsang <timkltsang@gmail.com>
 Description: A Bayesian framework for inferring influenza infection status from
     serial antibody measurements. Jointly estimates season-specific infection
-    probabilities, antibody boosting and waning after infection, and baseline HAI
-    titer distributions via MCMC. Supports multi-season analysis and subgroup
+    probabilities, antibody boosting and waning after infection, and baseline
+    hemagglutination inhibition (HAI) titer distributions via Markov chain
+    Monte Carlo (MCMC). Supports multi-season analysis and subgroup
     comparisons via a group_by interface. See Tsang et al. (2022)
     <doi:10.1038/s41467-022-29310-8> for methodological details.
 License: GPL (>= 2)

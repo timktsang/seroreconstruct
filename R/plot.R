@@ -14,7 +14,7 @@
 #'   \code{table_parameters(fit)$Parameter} to see available names.
 #' @return Invisible \code{NULL}. Called for its side effect of producing plots.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' fit <- sero_reconstruct(inputdata, flu_activity,
 #'                         n_iteration = 2000, burnin = 1000, thinning = 1)
 #' plot_diagnostics(fit)
