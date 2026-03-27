@@ -73,13 +73,13 @@ fit <- sero_reconstruct(inputdata, flu_activity,
 #> 2000
 #> 3000
 #> 4000
-#> MCMC complete in 63 seconds. Use summary() to view estimates.
+#> MCMC complete in 65 seconds. Use summary() to view estimates.
 fit
 #> seroreconstruct fit
 #>   Individuals: 1753 
 #>   Age groups: 3 
 #>   Posterior samples: 3000 
-#>   Runtime: 63 seconds
+#>   Runtime: 65 seconds
 #> 
 #> Use summary() to extract model estimates.
 ```
