@@ -120,7 +120,7 @@ samples are accessible directly from the fit object (e.g.,
 a1 <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
 #> 1000
-#> MCMC complete in 27 seconds. Use summary() to view estimates.
+#> MCMC complete in 26 seconds. Use summary() to view estimates.
 summary(a1)
 #>                                                                                                        Variable
 #>                                                                                                Random error (%)
