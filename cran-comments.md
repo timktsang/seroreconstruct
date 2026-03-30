@@ -1,20 +1,14 @@
-# CRAN submission comments — seroreconstruct 1.1.3
+# CRAN submission comments — seroreconstruct 1.1.4
 
 ## Resubmission
 
-This is a resubmission addressing CRAN pre-test feedback on v1.1.2:
+This is a resubmission addressing CRAN pre-test feedback on v1.1.3:
 
-- **Fixed**: Replaced static `src/Makevars` with a `configure` script that
-  conditionally adds `$(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)` on Linux only.
-  This resolves the `undefined symbol: dpotrf_` failure on the Debian
-  (clang-21) pre-test environment while avoiding an Abort trap on macOS
-  from double-linking.
-- **Fixed**: Expanded acronyms in DESCRIPTION title/description (HAI, MCMC).
-  Added `\value` tags to all `.Rd` files. Changed long-running examples from
-  `\dontrun{}` to `\donttest{}`. All plot functions reset `par()` on exit.
-- **Noted**: "Misspelled" words (Tsang, et, al, titer) are all correct —
-  titer is the standard US English spelling, and Tsang et al. is an author
-  citation.
+- **Fixed**: Added `inst/WORDLIST` for domain-specific terms flagged by the
+  spell checker (HAI, hemagglutination, titer, Tsang, et, al). These are
+  standard epidemiology/serology terminology and author citation.
+- **Fixed**: Replaced GPL license badge URL in README.md that caused a
+  connection timeout on the Windows pre-test server.
 
 ## R CMD check results
 
@@ -43,5 +37,4 @@ None — this is a new submission.
 
 - macOS (local): R 4.2.0
 - Ubuntu (GitHub Actions, `release`)
-- Ubuntu (GitHub Actions, `devel`)
 - Windows Server (GitHub Actions, `release`)

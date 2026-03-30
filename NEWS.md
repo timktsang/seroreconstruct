@@ -1,3 +1,34 @@
+# seroreconstruct 1.1.4
+
+## Bug fixes
+
+* Added `inst/WORDLIST` for domain-specific terms (HAI, hemagglutination, titer)
+  flagged by CRAN spell checker.
+
+* Fixed GPL license badge URL in README that caused a connection timeout on
+  CRAN's Windows pre-test server.
+
+---
+
+# seroreconstruct 1.1.3
+
+## Bug fixes
+
+* Platform-conditional LAPACK linkage via `configure`/`Makevars.in`/`cleanup`
+  scripts, fixing macOS Abort trap from double-linking while retaining Linux
+  `dpotrf_` symbol resolution.
+
+* `.onLoad()` now respects pre-existing `RCPP_PARALLEL_NUM_THREADS` before
+  capping to 2.
+
+* Plot test examples wrapped in `pdf(NULL)`/`dev.off()` to prevent
+  `Rplots.pdf` artifacts.
+
+* `plot_diagnostics()` example limited to 2 parameters to avoid graphics
+  device overflow in pkgdown.
+
+---
+
 # seroreconstruct 1.1.2
 
 ## Bug fixes

@@ -5,7 +5,7 @@
 
 [![R-CMD-check](https://github.com/timktsang/seroreconstruct/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/timktsang/seroreconstruct/actions/workflows/R-CMD-check.yaml)
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](https://www.gnu.org/licenses/gpl-2.0)
+[![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](https://choosealicense.com/licenses/gpl-2.0/)
 
 `seroreconstruct` is a Bayesian modeling framework to infer influenza
 virus infection status, antibody dynamics, and individual infection
