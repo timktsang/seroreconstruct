@@ -4,7 +4,7 @@
 [![Project Status:
 Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![License: GPL
-v2+](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](https://www.gnu.org/licenses/gpl-2.0)
+v2+](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](https://choosealicense.com/licenses/gpl-2.0/)
 
 `seroreconstruct` is a Bayesian modeling framework to infer influenza
 virus infection status, antibody dynamics, and individual infection

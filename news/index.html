@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">seroreconstruct</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,24 @@
       <small>Source: <a href="https://github.com/timktsang/seroreconstruct/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.4" id="seroreconstruct-114">seroreconstruct 1.1.4<a class="anchor" aria-label="anchor" href="#seroreconstruct-114"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-1-1-4">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-4"></a></h3>
+<ul><li><p>Added <code>inst/WORDLIST</code> for domain-specific terms (HAI, hemagglutination, titer) flagged by CRAN spell checker.</p></li>
+<li><p>Fixed GPL license badge URL in README that caused a connection timeout on CRAN’s Windows pre-test server.</p></li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.3" id="seroreconstruct-113">seroreconstruct 1.1.3<a class="anchor" aria-label="anchor" href="#seroreconstruct-113"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-1-1-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-3"></a></h3>
+<ul><li><p>Platform-conditional LAPACK linkage via <code>configure</code>/<code>Makevars.in</code>/<code>cleanup</code> scripts, fixing macOS Abort trap from double-linking while retaining Linux <code>dpotrf_</code> symbol resolution.</p></li>
+<li><p><code>.onLoad()</code> now respects pre-existing <code>RCPP_PARALLEL_NUM_THREADS</code> before capping to 2.</p></li>
+<li><p>Plot test examples wrapped in <code>pdf(NULL)</code>/<code><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off()</a></code> to prevent <code>Rplots.pdf</code> artifacts.</p></li>
+<li><p><code><a href="../reference/plot_diagnostics.html">plot_diagnostics()</a></code> example limited to 2 parameters to avoid graphics device overflow in pkgdown.</p></li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.2" id="seroreconstruct-112">seroreconstruct 1.1.2<a class="anchor" aria-label="anchor" href="#seroreconstruct-112"></a></h2>
 <div class="section level3">
