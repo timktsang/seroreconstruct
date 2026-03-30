@@ -1,9 +1,12 @@
-# CRAN submission comments — seroreconstruct 1.1.4
+# CRAN submission comments — seroreconstruct 1.1.5
 
 ## Resubmission
 
-This is a resubmission addressing CRAN pre-test feedback on v1.1.3:
+This is a resubmission addressing CRAN pre-test feedback on v1.1.3/v1.1.4:
 
+- **Fixed**: Reduced total check time from >10 min to ~3 min. Tests now use
+  shared pre-computed MCMC fixtures (one helper file) instead of ~49
+  independent MCMC runs. Vignette iterations reduced from 5000 to 2000.
 - **Fixed**: Added `inst/WORDLIST` for domain-specific terms flagged by the
   spell checker (HAI, hemagglutination, titer, Tsang, et, al). These are
   standard epidemiology/serology terminology and author citation.
