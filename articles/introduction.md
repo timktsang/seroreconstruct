@@ -70,13 +70,13 @@ For this vignette, we use a short run for illustration:
 fit <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
 #> 1000
-#> MCMC complete in 27 seconds. Use summary() to view estimates.
+#> MCMC complete in 25 seconds. Use summary() to view estimates.
 fit
 #> seroreconstruct fit
 #>   Individuals: 1753 
 #>   Age groups: 3 
 #>   Posterior samples: 1000 
-#>   Runtime: 27 seconds
+#>   Runtime: 25 seconds
 #> 
 #> Use summary() to extract model estimates.
 ```

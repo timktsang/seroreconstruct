@@ -1,8 +1,12 @@
 # Changelog
 
-## seroreconstruct 1.1.4
+## seroreconstruct 1.1.5
 
 ### Bug fixes
+
+- Reduced total check time from \>10 min to ~3 min by sharing
+  pre-computed MCMC fixtures across test files and reducing vignette
+  iterations.
 
 - Added `inst/WORDLIST` for domain-specific terms (HAI,
   hemagglutination, titer) flagged by CRAN spell checker.
