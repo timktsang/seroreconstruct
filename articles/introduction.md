@@ -68,18 +68,15 @@ For this vignette, we use a short run for illustration:
 
 ``` r
 fit <- sero_reconstruct(inputdata, flu_activity,
-                        n_iteration = 5000, burnin = 2000, thinning = 1)
+                        n_iteration = 2000, burnin = 1000, thinning = 1)
 #> 1000
-#> 2000
-#> 3000
-#> 4000
-#> MCMC complete in 65 seconds. Use summary() to view estimates.
+#> MCMC complete in 27 seconds. Use summary() to view estimates.
 fit
 #> seroreconstruct fit
 #>   Individuals: 1753 
 #>   Age groups: 3 
-#>   Posterior samples: 3000 
-#>   Runtime: 65 seconds
+#>   Posterior samples: 1000 
+#>   Runtime: 27 seconds
 #> 
 #> Use summary() to extract model estimates.
 ```
@@ -109,22 +106,22 @@ summary(fit)
 #>      Relative risk for children with pre-epidemic HAI titer < 10 (Ref: Adults with pre-epidemic HAI titer < 10)
 #>  Relative risk for older adults with pre-epidemic HAI titer < 10 (Ref: Adults with pre-epidemic HAI titer < 10)
 #>  Point estimate Lower bound Upper bound
-#>            1.56        0.97        2.45
-#>            4.05        4.93        3.11
-#>           11.47        7.28       16.16
-#>            1.03        1.01        1.06
-#>            7.46        5.95        9.21
-#>            1.05        1.02        1.08
-#>            0.17        0.14        0.21
-#>            0.19        0.15        0.22
-#>            0.13        0.09        0.18
-#>            0.46        0.39        0.55
-#>            0.30        0.25        0.36
-#>            0.21        0.14        0.29
-#>            0.95        0.72        1.21
-#>            1.57        1.25        1.93
-#>            0.71        0.47        0.99
-#>            0.72        0.49        1.00
+#>            2.89        2.14        3.84
+#>            2.96        3.54        2.40
+#>            4.86        3.07        6.97
+#>            1.05        1.03        1.06
+#>            6.93        5.63        8.58
+#>            1.17        1.09        1.27
+#>            0.20        0.17        0.24
+#>            0.20        0.17        0.23
+#>            0.13        0.09        0.19
+#>            0.41        0.31        0.52
+#>            0.28        0.24        0.32
+#>            0.18        0.12        0.26
+#>            1.00        0.80        1.22
+#>            1.49        1.15        1.87
+#>            0.66        0.43        0.94
+#>            0.66        0.43        0.94
 ```
 
 The summary table includes:
@@ -192,27 +189,27 @@ Extract parameter estimates and individual-level results as data frames:
 ``` r
 # Model parameter estimates
 table_parameters(fit)
-#>                Parameter         Mean       Median         Lower        Upper
-#> 1           random_error  0.001561569  0.001511629  0.0009659599  0.002446555
-#> 2          twofold_error  1.820836756  1.809247817  1.6232064275  2.082991452
-#> 3      boosting_children  3.520090978  3.597991901  2.8637652262  4.014747117
-#> 4        waning_children  0.038526651  0.035308594  0.0139260350  0.079819865
-#> 5        boosting_adults  2.899683177  2.896135222  2.5721652210  3.203945802
-#> 6          waning_adults  0.067101881  0.063985949  0.0348443278  0.113601082
-#> 7      inf_prob_children  0.675260031  0.666838760  0.5296965836  0.851994880
-#> 8        inf_prob_adults  0.381066039  0.377426102  0.3036799853  0.477668922
-#> 9  inf_prob_older_adults  0.258153829  0.251832444  0.1682203170  0.371903177
-#> 10              hai_coef -0.612325028 -0.612387133 -0.8025365173 -0.448934246
+#>                Parameter         Mean       Median        Lower        Upper
+#> 1           random_error  0.002889662  0.002856659  0.002143645  0.003842069
+#> 2          twofold_error  2.133954800  2.130922342  1.953734605  2.343947558
+#> 3      boosting_children  2.281080677  2.319697997  1.620521018  2.801649265
+#> 4        waning_children  0.064834781  0.064991130  0.046278951  0.090724534
+#> 5        boosting_adults  2.792245369  2.805080753  2.494366965  3.100726381
+#> 6          waning_adults  0.224546728  0.229392433  0.121544623  0.349487785
+#> 7      inf_prob_children  0.574302695  0.564085095  0.406883857  0.786518082
+#> 8        inf_prob_adults  0.348488328  0.344921235  0.289990335  0.417298234
+#> 9  inf_prob_older_adults  0.219260013  0.215732106  0.132896395  0.324859265
+#> 10              hai_coef -0.364387079 -0.353030293 -0.551289973 -0.204107059
 
 # Per-individual infection probabilities
 head(table_infections(fit))
 #>   Individual Infection_prob Infection_time_mean Baseline_titer_mean
-#> 1          1              0                  NA                0.50
-#> 2          2              0                  NA                0.48
-#> 3          3              0                  NA                0.48
-#> 4          4              0                  NA                4.48
-#> 5          5              0                  NA                0.52
-#> 6          6              0                  NA                0.49
+#> 1          1          0.059               950.0                0.47
+#> 2          2          0.000                  NA                0.48
+#> 3          3          0.000                  NA                0.50
+#> 4          4          0.000                  NA                4.53
+#> 5          5          0.782               940.3                0.35
+#> 6          6          0.000                  NA                0.46
 ```
 
 ## Subgroup analysis

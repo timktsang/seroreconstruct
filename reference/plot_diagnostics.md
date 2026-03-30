@@ -35,7 +35,7 @@ Invisible `NULL`. Called for its side effect of producing plots.
 fit <- sero_reconstruct(inputdata, flu_activity,
                         n_iteration = 2000, burnin = 1000, thinning = 1)
 #> 1000
-#> MCMC complete in 27 seconds. Use summary() to view estimates.
+#> MCMC complete in 28 seconds. Use summary() to view estimates.
 # Plot selected parameters (use params = NULL for all)
 plot_diagnostics(fit, params = c("random_error", "twofold_error"))
 
